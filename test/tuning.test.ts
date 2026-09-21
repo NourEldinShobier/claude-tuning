@@ -55,3 +55,19 @@ describe('context-mode cap', () => {
     expect(additionalContext).toContain('ctx_search');
   });
 });
+
+import { eligible, isComplex } from '../src/route-model';
+
+describe('model routing', () => {
+  test('never overrides an explicit model or read-only agent types', () => {
+    expect(eligible({ prompt: 'x', model: 'sonnet' })).toBe(false);
+    expect(eligible({ prompt: 'x', subagent_type: 'Explore' })).toBe(false);
+    expect(eligible({ prompt: 'refactor auth', subagent_type: 'general-purpose' })).toBe(true);
+  });
+
+  test('upgrades only when complex and not mechanical', () => {
+    expect(isComplex(0.9, 0.2)).toBe(true);
+    expect(isComplex(0.26, 0.43)).toBe(false);
+    expect(isComplex(0.9, 0.95)).toBe(false);
+  });
+});
