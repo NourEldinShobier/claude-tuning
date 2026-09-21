@@ -1,0 +1,7 @@
+{
+  "name": "claude-tuning",
+  "version": "0.1.0",
+  "description": "Personal Claude Code tuning: Jev skill suggestions per turn, and context-mode's session-start injection kept under the 10,000-character hook limit.",
+  "author": { "name": "Nour Eldin Shobier" },
+  "license": "MIT"
+}

@@ -1,0 +1,5 @@
+{
+  "name": "claude-tuning",
+  "owner": { "name": "Nour Eldin Shobier" },
+  "plugins": [{ "name": "claude-tuning", "source": "./", "description": "Jev skill suggestions and context-mode injection cap" }]
+}
