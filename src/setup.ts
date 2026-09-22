@@ -28,16 +28,35 @@ export async function has(command: string, args = ['--version']): Promise<boolea
   }
 }
 
-/** Installed when on PATH, or in ~/.local/bin (where installers put it before a new shell sees the PATH change). */
+/** Where installers put a tool, for the moment before a new shell sees their PATH change. */
+export function binPaths(bin: string, platform: string = process.platform): string[] {
+  if (platform !== 'win32') return [join(homedir(), '.local', 'bin', bin)];
+  const localAppData = process.env.LOCALAPPDATA || join(homedir(), 'AppData', 'Local');
+  return [join(localAppData, 'Programs', bin, `${bin}.exe`), join(homedir(), '.local', 'bin', `${bin}.exe`)];
+}
+
+/** Installed when on PATH or in one of the installer locations. */
 export async function hasBin(bin: string): Promise<boolean> {
   if (await has(bin)) return true;
-  const local = join(homedir(), '.local', 'bin', process.platform === 'win32' ? `${bin}.exe` : bin);
-  return existsSync(local) && has(local);
+  for (const p of binPaths(bin)) if (existsSync(p) && (await has(p))) return true;
+  return false;
 }
 
 /** The shell that runs an install command on this platform. */
 export const shellFor = (command: string, platform: string = process.platform): string[] =>
   platform === 'win32' ? ['powershell', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', command] : ['bash', '-c', command];
+
+/**
+ * Runs an official installer. On Windows, PSModulePath is dropped: when setup is started from PowerShell 7
+ * it points Windows PowerShell 5.1 at 7's modules, and built-ins like Get-FileHash then fail to load.
+ */
+export async function runInstaller(command: string): Promise<{ ok: boolean; output: string }> {
+  const env = { ...process.env };
+  if (process.platform === 'win32') delete env.PSModulePath;
+  const p = Bun.spawn(shellFor(command), { stdout: 'pipe', stderr: 'pipe', env });
+  const [stdout, stderr] = await Promise.all([new Response(p.stdout).text(), new Response(p.stderr).text()]);
+  return { ok: (await p.exited) === 0, output: `${stdout}${stderr}`.trim() };
+}
 
 async function run(cmd: string[]): Promise<{ ok: boolean; output: string }> {
   const p = Bun.spawn(cmd, { stdout: 'pipe', stderr: 'pipe' });
@@ -102,7 +121,7 @@ async function main() {
       out(`  ${u.id.padEnd(16)} would install with its official installer (${u.repo})`);
       continue;
     }
-    const r = await run(shellFor(u.install[platform]));
+    const r = await runInstaller(u.install[platform]);
     const ok = await hasBin(u.bin);
     out(`  ${u.id.padEnd(16)} ${ok ? 'installed' : `install failed: ${r.output.split('\n').filter(Boolean).pop() ?? 'no output'}`}`);
   }

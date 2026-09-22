@@ -146,7 +146,7 @@ describe('upstreams', () => {
   });
 });
 
-import { hasBin, shellFor } from '../src/setup';
+import { binPaths, hasBin, shellFor } from '../src/setup';
 import { tools } from '../src/upstreams';
 
 describe('tool install', () => {
@@ -165,6 +165,13 @@ describe('tool install', () => {
     expect(shellFor('x', 'win32')).toContain('Bypass');
     expect(shellFor('x', 'darwin')).toEqual(['bash', '-c', 'x']);
     expect(shellFor('x', 'linux')).toEqual(['bash', '-c', 'x']);
+  });
+
+  test('installer locations cover both Windows install folders', () => {
+    const win = binPaths('codebase-memory-mcp', 'win32');
+    expect(win.some((p) => p.includes('Programs') && p.endsWith('codebase-memory-mcp.exe'))).toBe(true);
+    expect(win.some((p) => p.includes('.local'))).toBe(true);
+    expect(binPaths('codebase-memory-mcp', 'darwin')[0]).toMatch(/\.local[\\/]bin[\\/]codebase-memory-mcp$/);
   });
 
   test('a missing binary is reported missing', async () => {
