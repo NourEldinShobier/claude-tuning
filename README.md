@@ -81,12 +81,14 @@ We copy no third-party code. Each tool installs from its own repo at a pinned ve
 
 | Tool | What it does | Reported gain | Licence | How we use it |
 |---|---|---|---|---|
+| **squeeze** (ours) | Shrinks long shell output before Claude reads it. The full text is saved to a file. | 79–93% smaller output on real commands. On git log and diff it returned 1.6–3.6x less than [rtk](https://github.com/rtk-ai/rtk). | MIT | Built in |
+| **stash** (ours) | Keeps big outputs, files and pages in a local search index. Claude pulls back only what it needs, ranked by Jev. | 91 KB of git history came back as 9.7 KB (89% less) | MIT | Built in |
 | [web-search](https://github.com/NourEldinShobier/web-search) | Web search and page reading as compact markdown | ~24x fewer tokens and ~3.5x faster than calling Jina directly | MIT | Installed by setup |
 | [ponytail](https://github.com/DietrichGebert/ponytail) | Makes Claude write the smallest code that works | 54% less code, 22% fewer tokens, 20% cheaper, 27% faster | MIT | Installed by setup |
 | [i-have-adhd](https://github.com/ayghri/i-have-adhd) | Answers lead with the next action: numbered steps, no filler | No published numbers; shorter answers | MIT | Installed by setup |
 | [codebase-memory-mcp](https://github.com/DeusData/codebase-memory-mcp) | Code graph: "where is X defined, who calls X" without reading whole files | 120x fewer tokens (3.4k vs 412k over 5 queries) | MIT | You install it; setup adds its hooks |
 
-Gains come from each project's own README and benchmarks, except web-search, which is ours (`bench/run.ts` in its repo). They measure different things, so the numbers don't add up to one total. Pinned versions are in [UPSTREAMS.md](UPSTREAMS.md).
+Gains for squeeze, stash and web-search are our own measurements. squeeze vs rtk: six git commands in two repos, rtk 0.10.0, run 2026-09-22. rtk came out smaller on one test run, where it cut the failure details. Gains for the other tools come from their own READMEs and benchmarks. They measure different things, so the numbers don't add up to one total. Pinned versions are in [UPSTREAMS.md](UPSTREAMS.md).
 
 **Services:**
 
