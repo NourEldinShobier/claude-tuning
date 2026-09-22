@@ -45,10 +45,11 @@ const cmRoot = join(homedir(), '.claude', 'plugins', 'cache', 'context-mode', 'c
 const cmVersions = existsSync(cmRoot) ? readdirSync(cmRoot).sort() : [];
 
 describe.skipIf(!cmVersions.length)('context-mode cap', () => {
-  const src = readFileSync(join(cmRoot, cmVersions.at(-1) ?? '', 'hooks', 'sessionstart.mjs'), 'utf8');
+  // Read lazily: skipIf still evaluates this describe body.
+  const read = () => readFileSync(join(cmRoot, cmVersions.at(-1) ?? '', 'hooks', 'sessionstart.mjs'), 'utf8');
 
   test('patches the installed context-mode once', () => {
-    const once = patch(src.replace(/\n\s*\/\/ \[claude-tuning[^\n]*[\s\S]*?\n  }\n/, '\n'));
+    const once = patch(read().replace(/\n\s*\/\/ \[claude-tuning[^\n]*[\s\S]*?\n  }\n/, '\n'));
     expect(once).toContain(MARK);
     expect(patch(once!)).toBeNull();
   });
@@ -56,7 +57,7 @@ describe.skipIf(!cmVersions.length)('context-mode cap', () => {
   test('the patched cut keeps the start and stays under 10,000 characters', () => {
     let additionalContext = `<rules>${'r'.repeat(4600)}</rules>\n` + 'line of session guide\n'.repeat(1200);
     // Run the exact snippet the patch inserts.
-    const snippet = /if \(additionalContext\.length > 9500\) \{[\s\S]*?\n  \}/.exec(patch(src.replace(/\n\s*\/\/ \[claude-tuning[^\n]*[\s\S]*?\n  }\n/, '\n'))!)![0];
+    const snippet = /if \(additionalContext\.length > 9500\) \{[\s\S]*?\n  \}/.exec(patch(read().replace(/\n\s*\/\/ \[claude-tuning[^\n]*[\s\S]*?\n  }\n/, '\n'))!)![0];
     additionalContext = new Function('additionalContext', `${snippet}; return additionalContext;`)(additionalContext);
     expect(additionalContext.length).toBeLessThan(10_000);
     expect(additionalContext.startsWith(`<rules>${'r'.repeat(4600)}</rules>`)).toBe(true);
