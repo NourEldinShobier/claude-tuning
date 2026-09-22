@@ -146,6 +146,33 @@ describe('upstreams', () => {
   });
 });
 
+import { hasBin, shellFor } from '../src/setup';
+import { tools } from '../src/upstreams';
+
+describe('tool install', () => {
+  test('every tool has a binary name and an official installer for each platform', () => {
+    for (const u of tools()) {
+      expect(u.bin).toBeTruthy();
+      expect(Object.keys(u.install ?? {})).toEqual(['darwin', 'linux', 'win32']);
+      // The Windows installer goes to %TEMP%, never into the folder setup runs in.
+      expect(u.install!.win32).toContain('$env:TEMP');
+      expect(u.install!.win32).not.toContain('.\\install.ps1');
+    }
+  });
+
+  test('installers run through the platform shell', () => {
+    expect(shellFor('x', 'win32').slice(0, 1)).toEqual(['powershell']);
+    expect(shellFor('x', 'win32')).toContain('Bypass');
+    expect(shellFor('x', 'darwin')).toEqual(['bash', '-c', 'x']);
+    expect(shellFor('x', 'linux')).toEqual(['bash', '-c', 'x']);
+  });
+
+  test('a missing binary is reported missing', async () => {
+    expect(await hasBin('no-such-tool-claude-tuning')).toBe(false);
+    expect(await hasBin('bun')).toBe(true);
+  });
+});
+
 import { commandName } from '../src/settings';
 
 describe('hook identity', () => {

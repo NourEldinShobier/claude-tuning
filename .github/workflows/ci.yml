@@ -19,3 +19,5 @@ jobs:
       # The generated table must match src/upstreams.ts.
       - run: bun run upstreams:doc
       - run: git diff --exit-code UPSTREAMS.md
+      # The real official installers, run the way setup runs them.
+      - run: bun test/install-live.ts

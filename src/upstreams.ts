@@ -21,8 +21,10 @@ export interface Upstream {
   why: string;
   /** What claude-tuning changes about it, if anything. */
   ours?: string;
-  /** Install command per platform, for `kind: 'cli' | 'mcp'`; run by the user, never by us. */
+  /** The tool's official install command per platform, for `kind: 'cli' | 'mcp'`; setup runs it when the tool is missing. */
   install?: { darwin: string; linux: string; win32: string };
+  /** Executable name, to check whether the tool is installed. */
+  bin?: string;
 }
 
 export const UPSTREAMS: Upstream[] = [
@@ -95,8 +97,9 @@ export const UPSTREAMS: Upstream[] = [
     install: {
       darwin: 'curl -fsSL https://raw.githubusercontent.com/DeusData/codebase-memory-mcp/main/install.sh | bash',
       linux: 'curl -fsSL https://raw.githubusercontent.com/DeusData/codebase-memory-mcp/main/install.sh | bash',
-      win32: 'irm https://raw.githubusercontent.com/DeusData/codebase-memory-mcp/main/install.ps1 -OutFile install.ps1; Unblock-File .\\install.ps1; .\\install.ps1',
+      win32: "$f = Join-Path $env:TEMP 'cbm-install.ps1'; irm https://raw.githubusercontent.com/DeusData/codebase-memory-mcp/main/install.ps1 -OutFile $f; Unblock-File $f; & $f",
     },
+    bin: 'codebase-memory-mcp',
   },
 ];
 

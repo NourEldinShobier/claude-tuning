@@ -14,16 +14,18 @@ Works on macOS, Linux and Windows.
    ```
 
 2. Restart Claude Code.
-3. Type `/claude-tuning:tune`. Claude shows a plan and changes nothing until you say yes.
+3. Type `/claude-tuning:tune`. Claude installs and configures everything that is missing: Bun, the plugins, codebase-memory, settings and rules.
 4. Restart Claude Code once more.
 
 Done.
 
 ## You need
 
+Setting the API keys is the only step you do yourself.
+
 | What | Required? | Get it |
 |---|---|---|
-| [Bun](https://bun.sh) | Yes | `curl -fsSL https://bun.sh/install \| bash` (Windows: `powershell -c "irm bun.sh/install.ps1 \| iex"`) |
+| [Bun](https://bun.sh) | Yes | Installed by `/claude-tuning:tune` if missing |
 | `JINA_API_KEY` | Yes, for web search | Free at [jina.ai](https://jina.ai/?sui=apikey) |
 | `TYPESAFE_API_KEY` | Optional | Turns on the Jev features below. [typesafe.ai](https://typesafe.ai) |
 
@@ -46,7 +48,8 @@ Done.
 | [ponytail](https://github.com/DietrichGebert/ponytail) | Keeps code minimal |
 | [i-have-adhd](https://github.com/ayghri/i-have-adhd) | Short answers that lead with the next action |
 | Tool rules in `~/.claude/CLAUDE.md` | Tell Claude when to use the tools above |
-| Settings | 700k auto-compact window; code-graph hooks if you have [codebase-memory](https://github.com/DeusData/codebase-memory-mcp) |
+| [codebase-memory](https://github.com/DeusData/codebase-memory-mcp) | Code graph; installed with its official installer if missing |
+| Settings | 700k auto-compact window and the code-graph hooks |
 
 Your existing settings are kept. Backups: `settings.json.bak`, `CLAUDE.md.bak`.
 
@@ -87,7 +90,7 @@ We copy no third-party code. Each tool installs from its own repo at a pinned ve
 | [web-search](https://github.com/NourEldinShobier/web-search) (ours) | Web search and page reading as compact markdown | ~24x fewer tokens and ~3.5x faster than calling Jina directly | MIT | Installed by setup |
 | [ponytail](https://github.com/DietrichGebert/ponytail) | Makes Claude write the smallest code that works | 54% less code, 22% fewer tokens, 20% cheaper, 27% faster | MIT | Installed by setup |
 | [i-have-adhd](https://github.com/ayghri/i-have-adhd) | Answers lead with the next action: numbered steps, no filler | No published numbers; shorter answers | MIT | Installed by setup |
-| [codebase-memory-mcp](https://github.com/DeusData/codebase-memory-mcp) | Code graph: "where is X defined, who calls X" without reading whole files | 120x fewer tokens (3.4k vs 412k over 5 queries) | MIT | You install it; setup adds its hooks |
+| [codebase-memory-mcp](https://github.com/DeusData/codebase-memory-mcp) | Code graph: "where is X defined, who calls X" without reading whole files | 120x fewer tokens (3.4k vs 412k over 5 queries) | MIT | Installed by setup if missing |
 
 Gains for squeeze, stash and web-search are our own measurements. squeeze vs rtk: six git commands in two repos, rtk 0.10.0, run 2026-09-22. rtk came out smaller on one `bun test` run, where it printed only a short summary. Gains for the other tools come from their own READMEs and benchmarks. They measure different things, so the numbers don't add up to one total. Pinned versions are in [UPSTREAMS.md](UPSTREAMS.md).
 

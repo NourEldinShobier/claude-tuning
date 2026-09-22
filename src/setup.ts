@@ -4,10 +4,12 @@
  * Prints a plan by default and changes nothing until you pass --apply. Works on macOS, Linux and Windows.
  * Installs plugins from their own repos at the pinned versions in src/upstreams.ts, then merges the
  * settings in src/settings.ts into ~/.claude/settings.json (existing values are kept, a .bak is written).
- * Binaries (codebase-memory-mcp) are never installed for you: their commands are printed.
+ * Missing tools (codebase-memory-mcp) are installed with their project's own official installer.
  */
 import { plugins, tools, UPSTREAMS } from './upstreams';
 import { copyFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
 import { claudeMdPath, desired, merge, readSettings, settingsPath, withRules, writeSettings } from './settings';
 
 const APPLY = process.argv.includes('--apply');
@@ -25,6 +27,17 @@ export async function has(command: string, args = ['--version']): Promise<boolea
     return false;
   }
 }
+
+/** Installed when on PATH, or in ~/.local/bin (where installers put it before a new shell sees the PATH change). */
+export async function hasBin(bin: string): Promise<boolean> {
+  if (await has(bin)) return true;
+  const local = join(homedir(), '.local', 'bin', process.platform === 'win32' ? `${bin}.exe` : bin);
+  return existsSync(local) && has(local);
+}
+
+/** The shell that runs an install command on this platform. */
+export const shellFor = (command: string, platform: string = process.platform): string[] =>
+  platform === 'win32' ? ['powershell', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', command] : ['bash', '-c', command];
 
 async function run(cmd: string[]): Promise<{ ok: boolean; output: string }> {
   const p = Bun.spawn(cmd, { stdout: 'pipe', stderr: 'pipe' });
@@ -77,16 +90,25 @@ async function main() {
     out(`  ${u.id.padEnd(16)} ${install.ok ? 'installed' : `failed: ${(install.output || add.output).split('\n').pop()}`}`);
   }
 
-  // 3. Binaries we never install for you.
-  out(`\n${bold('Command-line tools')} (install these yourself; claude-tuning only reports them)`);
+  // 3. Tools, installed with their own official installer when missing.
+  out(`\n${bold('Tools')}`);
   for (const u of tools()) {
-    if (!wanted(u)) continue;
-    const present = await has('codebase-memory-mcp');
-    out(`  ${u.id.padEnd(16)} ${present ? 'ok' : `missing — ${u.install?.[platform] ?? u.repo}`}`);
+    if (!wanted(u) || !u.bin || !u.install) continue;
+    if (await hasBin(u.bin)) {
+      out(`  ${u.id.padEnd(16)} already installed`);
+      continue;
+    }
+    if (!APPLY) {
+      out(`  ${u.id.padEnd(16)} would install with its official installer (${u.repo})`);
+      continue;
+    }
+    const r = await run(shellFor(u.install[platform]));
+    const ok = await hasBin(u.bin);
+    out(`  ${u.id.padEnd(16)} ${ok ? 'installed' : `install failed: ${r.output.split('\n').filter(Boolean).pop() ?? 'no output'}`}`);
   }
 
   // 4. Settings, merged.
-  const present = { codebaseMemory: await has('codebase-memory-mcp') };
+  const present = { codebaseMemory: await hasBin('codebase-memory-mcp') };
   const current = readSettings();
   const { next, changes } = merge(current, desired(present));
   out(`\n${bold('Settings')} (${settingsPath()})`);
