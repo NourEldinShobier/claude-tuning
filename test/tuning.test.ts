@@ -110,18 +110,25 @@ describe('upstreams', () => {
     expect(UPSTREAMS.some((u) => u.id === 'context7')).toBe(false);
   });
 
-  test('every script the plugin wires (hooks.json, .mcp.json) exists', async () => {
+  test('every script hooks.json wires exists', async () => {
     const { existsSync, readFileSync } = await import('node:fs');
-    const wired = [readFileSync('hooks/hooks.json', 'utf8'), readFileSync('.mcp.json', 'utf8')].join('\n');
-    const paths = [...wired.matchAll(/\$\{CLAUDE_PLUGIN_ROOT\}\/([\w./-]+)/g)].map((m) => m[1]!);
-    expect(paths).toContain('src/squeeze/hook.ts');
-    expect(paths).toContain('src/stash/server.ts');
+    const paths = [...readFileSync('hooks/hooks.json', 'utf8').matchAll(/\$\{CLAUDE_PLUGIN_ROOT\}\/([\w./-]+)/g)].map((m) => m[1]!);
+    expect(paths).toEqual(['src/suggest.ts', 'src/route-model.ts']);
     for (const p of paths) expect(existsSync(p)).toBe(true);
   });
 
-  test('tools our own squeeze and stash replace are not in the set', () => {
-    expect(UPSTREAMS.map((u) => u.id)).not.toContain('rtk');
-    expect(UPSTREAMS.map((u) => u.id)).not.toContain('context-mode');
+  test('squeeze and stash are installed from their own repos; rtk and context-mode are gone', () => {
+    const ids = UPSTREAMS.map((u) => u.id);
+    expect(ids).toContain('squeeze');
+    expect(ids).toContain('stash');
+    expect(ids).not.toContain('rtk');
+    expect(ids).not.toContain('context-mode');
+  });
+
+  test('the marketplace lists every plugin of ours that setup installs', async () => {
+    const { readFileSync } = await import('node:fs');
+    const listed = JSON.parse(readFileSync('.claude-plugin/marketplace.json', 'utf8')).plugins.map((p: { name: string }) => p.name);
+    for (const id of ['squeeze', 'stash', 'web-search']) expect(listed).toContain(id);
   });
 
   test('no third-party code is vendored: only our own src/, skills/ and hooks/', async () => {

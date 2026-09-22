@@ -9,7 +9,7 @@
     {
       "name": "claude-tuning",
       "source": "./",
-      "description": "squeeze and stash for fewer tokens, Jev skill suggestions and model routing, and the setup command"
+      "description": "Jev skill suggestions and model routing, plus the setup command that installs the whole token-saving set"
     },
     {
       "name": "web-search",
@@ -18,6 +18,22 @@
         "repo": "NourEldinShobier/web-search"
       },
       "description": "Token-efficient web, news, paper and image search plus page/PDF reading"
+    },
+    {
+      "name": "squeeze",
+      "source": {
+        "source": "github",
+        "repo": "NourEldinShobier/squeeze"
+      },
+      "description": "Shrinks long shell output before Claude reads it; full text saved to a file"
+    },
+    {
+      "name": "stash",
+      "source": {
+        "source": "github",
+        "repo": "NourEldinShobier/stash"
+      },
+      "description": "MCP server that keeps big outputs in a local search index and returns only what Claude asks for"
     }
   ]
 }

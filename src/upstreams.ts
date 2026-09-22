@@ -27,6 +27,30 @@ export interface Upstream {
 
 export const UPSTREAMS: Upstream[] = [
   {
+    id: 'squeeze',
+    repo: 'NourEldinShobier/squeeze',
+    license: 'MIT',
+    kind: 'plugin',
+    marketplace: 'squeeze',
+    plugin: 'squeeze',
+    version: '0.1.0',
+    commit: '6b79559b8684',
+    why: 'Shrinks long Bash and PowerShell output before Claude reads it; the full text is saved to a file. 79–93% smaller on real commands.',
+    ours: 'Ours. Separate repo so it can be installed alone.',
+  },
+  {
+    id: 'stash',
+    repo: 'NourEldinShobier/stash',
+    license: 'MIT',
+    kind: 'plugin',
+    marketplace: 'stash',
+    plugin: 'stash',
+    version: '0.1.0',
+    commit: '8d789af403da',
+    why: 'MCP server that keeps big outputs, files and pages in a local search index and returns only what Claude asks for, ranked by Jev.',
+    ours: 'Ours. Separate repo so it can be installed alone.',
+  },
+  {
     id: 'web-search',
     repo: 'NourEldinShobier/web-search',
     license: 'MIT',
