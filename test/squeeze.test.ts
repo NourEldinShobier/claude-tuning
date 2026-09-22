@@ -85,9 +85,8 @@ describe('squeezeResult', () => {
   test('leaves small output alone', async () => {
     expect(await squeezeResult('echo hi', 'x', { stdout: 'hi' }, signal)).toBeNull();
   });
-  test('skips opt-out and rtk commands', async () => {
+  test('skips opt-out commands', async () => {
     expect(await squeezeResult('SQUEEZE=0 cat big', 'x', { stdout: big }, signal)).toBeNull();
-    expect(await squeezeResult('rtk git log', 'x', { stdout: big }, signal)).toBeNull();
   });
   test('squeezes big output, saves the full text and keeps other fields', async () => {
     const r = (await squeezeResult('cat big.txt', undefined, { stdout: big, stderr: '', interrupted: false }, signal))!;

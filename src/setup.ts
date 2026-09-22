@@ -4,8 +4,7 @@
  * Prints a plan by default and changes nothing until you pass --apply. Works on macOS, Linux and Windows.
  * Installs plugins from their own repos at the pinned versions in src/upstreams.ts, then merges the
  * settings in src/settings.ts into ~/.claude/settings.json (existing values are kept, a .bak is written).
- * Binaries (codebase-memory-mcp, and rtk with --with=rtk) are never installed for you: their commands are printed.
- * Optional upstreams that our own code replaces are skipped unless named in --with=.
+ * Binaries (codebase-memory-mcp) are never installed for you: their commands are printed.
  */
 import { plugins, tools, UPSTREAMS } from './upstreams';
 import { copyFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
@@ -13,9 +12,7 @@ import { claudeMdPath, desired, merge, readSettings, settingsPath, withRules, wr
 
 const APPLY = process.argv.includes('--apply');
 const ONLY = process.argv.find((a) => a.startsWith('--only='))?.slice(7).split(',');
-/** Optional upstreams to include anyway, e.g. --with=rtk,context-mode. */
-const WITH = process.argv.find((a) => a.startsWith('--with='))?.slice(7).split(',') ?? [];
-const wanted = (u: { id: string; optional?: string }) => (ONLY ? ONLY.includes(u.id) : !u.optional || WITH.includes(u.id));
+const wanted = (u: { id: string }) => !ONLY || ONLY.includes(u.id);
 
 const out = (s = '') => process.stdout.write(`${s}\n`);
 const bold = (s: string) => (process.stdout.isTTY ? `\x1b[1m${s}\x1b[0m` : s);
@@ -84,12 +81,12 @@ async function main() {
   out(`\n${bold('Command-line tools')} (install these yourself; claude-tuning only reports them)`);
   for (const u of tools()) {
     if (!wanted(u)) continue;
-    const present = await has(u.id === 'rtk' ? 'rtk' : 'codebase-memory-mcp');
+    const present = await has('codebase-memory-mcp');
     out(`  ${u.id.padEnd(16)} ${present ? 'ok' : `missing — ${u.install?.[platform] ?? u.repo}`}`);
   }
 
   // 4. Settings, merged.
-  const present = { rtk: WITH.includes('rtk') && (await has('rtk')), codebaseMemory: await has('codebase-memory-mcp') };
+  const present = { codebaseMemory: await has('codebase-memory-mcp') };
   const current = readSettings();
   const { next, changes } = merge(current, desired(present));
   out(`\n${bold('Settings')} (${settingsPath()})`);

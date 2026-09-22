@@ -13,13 +13,12 @@ export interface Settings {
 }
 
 /** Tuning that is not code: the auto-compact window, the ponytail exemption and the code-graph hooks. */
-export function desired(has: { rtk: boolean; codebaseMemory: boolean }): Settings {
+export function desired(has: { codebaseMemory: boolean }): Settings {
   const env: Record<string, string> = {
     // web-search's researcher agent gets no ponytail rules: it writes no code, and they cost ~1.4k tokens.
     PONYTAIL_SUBAGENT_MATCHER: '^(?!web-search:web-researcher$)',
   };
   const hooks: Settings['hooks'] = {};
-  if (has.rtk) hooks.PreToolUse = [{ matcher: 'Bash|PowerShell', hooks: [{ type: 'command', command: 'rtk hook claude' }] }];
   if (has.codebaseMemory) {
     const cbm = (matcher: string) => ({ matcher, hooks: [{ type: 'command', command: 'codebase-memory-mcp', args: ['hook-augment'], timeout: 5 }] });
     hooks.SessionStart = ['startup', 'resume', 'clear', 'compact'].map(cbm);

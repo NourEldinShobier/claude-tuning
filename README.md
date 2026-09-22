@@ -33,7 +33,7 @@ Done.
 
 | Part | What it does | Result |
 |---|---|---|
-| **squeeze** | Shrinks long command output before Claude reads it. The full text is saved to a file, so nothing is lost. | 79–93% smaller output; 2–5x smaller than rtk on git |
+| **squeeze** | Shrinks long command output before Claude reads it. The full text is saved to a file, so nothing is lost. | 79–93% smaller output on real commands |
 | **stash** | Keeps big outputs, files and pages in a local search index. Claude pulls back only the parts it needs. | 91 KB of git history came back as 9.7 KB |
 | **Skill suggestions** (Jev) | Tells Claude which of its skills fits your request. | 12 of 14 test prompts right |
 | **Model routing** (Jev) | Moves hard coding subagent tasks to Opus. Never downgrades, never overrides a model Claude chose. | 14 of 14 test tasks right |
@@ -63,7 +63,6 @@ Everything still works:
 | Flag | Does |
 |---|---|
 | `--only=web-search,ponytail` | Installs only these |
-| `--with=rtk,context-mode` | Also installs these; squeeze and stash already cover what they do |
 | `--no-rules` | Leaves your CLAUDE.md alone |
 
 Running setup twice is safe. The second run changes nothing.
@@ -86,8 +85,6 @@ We copy no third-party code. Each tool installs from its own repo at a pinned ve
 | [ponytail](https://github.com/DietrichGebert/ponytail) | Makes Claude write the smallest code that works | 54% less code, 22% fewer tokens, 20% cheaper, 27% faster | MIT | Installed by setup |
 | [i-have-adhd](https://github.com/ayghri/i-have-adhd) | Answers lead with the next action: numbered steps, no filler | No published numbers; shorter answers | MIT | Installed by setup |
 | [codebase-memory-mcp](https://github.com/DeusData/codebase-memory-mcp) | Code graph: "where is X defined, who calls X" without reading whole files | 120x fewer tokens (3.4k vs 412k over 5 queries) | MIT | You install it; setup adds its hooks |
-| [rtk](https://github.com/rtk-ai/rtk) | Shrinks shell output | Up to 90% less output | Apache-2.0 | Optional (`--with=rtk`). Our **squeeze** replaces it. |
-| [context-mode](https://github.com/mksglu/context-mode) | Keeps big outputs in a sandbox and returns only the answer | 315 KB became 5.4 KB (98% less) | Elastic-2.0 | Optional (`--with=context-mode`). Our **stash** replaces it. |
 
 Gains come from each project's own README and benchmarks, except web-search, which is ours (`bench/run.ts` in its repo). They measure different things, so the numbers don't add up to one total. Pinned versions are in [UPSTREAMS.md](UPSTREAMS.md).
 
@@ -102,7 +99,7 @@ Gains come from each project's own README and benchmarks, except web-search, whi
 
 More detail, including pinned commits and what we change in each tool: [UPSTREAMS.md](UPSTREAMS.md).
 
-- squeeze and stash are our own clean-room rewrites. We wrote them from how rtk and context-mode behave, never from their source.
+- squeeze and stash are our own code, written from scratch.
 - `bun run upstreams` shows which tools have newer releases.
 
 To update one:
@@ -119,7 +116,7 @@ bun test                 # unit tests, no network
 bun run typecheck
 bun test/eval.ts         # live skill-suggestion check (needs TYPESAFE_API_KEY)
 bun test/eval-route.ts   # live model-routing check
-bun bench/squeeze.ts ../some-repo   # raw vs rtk vs squeeze
+bun bench/squeeze.ts ../some-repo   # raw vs squeeze on real commands
 ```
 
 Debug output: set `SKILL_SUGGEST_DEBUG=1`, `ROUTE_MODEL_DEBUG=1` or `SQUEEZE_DEBUG=1`.

@@ -21,8 +21,6 @@ export interface Upstream {
   why: string;
   /** What claude-tuning changes about it, if anything. */
   ours?: string;
-  /** Set when our own code covers it: skipped by setup unless asked for with --with=<id>. Says what replaces it. */
-  optional?: string;
   /** Install command per platform, for `kind: 'cli' | 'mcp'`; run by the user, never by us. */
   install?: { darwin: string; linux: string; win32: string };
 }
@@ -61,29 +59,6 @@ export const UPSTREAMS: Upstream[] = [
     version: '0.3.0',
     commit: '6f1f982d0a47',
     why: 'Answers lead with the next action, numbered steps, no preamble. Shorter output is also cheaper output.',
-  },
-  {
-    id: 'context-mode',
-    repo: 'mksglu/context-mode',
-    license: 'Elastic-2.0',
-    kind: 'plugin',
-    marketplace: 'context-mode',
-    plugin: 'context-mode',
-    version: '1.0.169',
-    commit: '6f0cc6841c68',
-    optional: 'stash (src/stash/) provides the same sandbox-and-search workflow as an MCP server with no licence restrictions. Add context-mode for its session memory and wider tool set.',
-    why: 'Runs big commands, files and pages in a sandbox and returns only the derived answer, so raw bytes stay out of the context window.',
-    ours: 'Its session-start injection is capped to fit Claude Code\'s 10,000-character hook limit (src/cap-context-mode.ts); above that the model only receives a 2 KB preview and loses the routing rules.',
-  },
-  {
-    id: 'rtk',
-    repo: 'rtk-ai/rtk',
-    license: 'Apache-2.0',
-    kind: 'cli',
-    version: '0.10.0',
-    optional: 'squeeze (src/squeeze/) filters Bash output after it runs; on our git log/diff benchmark it returns 2-5x less than rtk. Add rtk for its wider command coverage.',
-    why: 'Compresses shell output (git, tests, builds) before it reaches the model. Hooked on every Bash and PowerShell call.',
-    install: { darwin: 'brew install rtk', linux: 'curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh', win32: 'winget install rtk-ai.rtk' },
   },
   {
     id: 'codebase-memory',

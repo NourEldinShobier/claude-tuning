@@ -9,7 +9,7 @@
     {
       "name": "claude-tuning",
       "source": "./",
-      "description": "Jev skill suggestions, Opus routing for complex subagents, context-mode hook cap, and the setup command"
+      "description": "squeeze and stash for fewer tokens, Jev skill suggestions and model routing, and the setup command"
     },
     {
       "name": "web-search",

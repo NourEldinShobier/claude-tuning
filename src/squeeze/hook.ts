@@ -91,7 +91,7 @@ export async function squeezeResult(command: string, description: string | undef
   const stderr = r.stderr ?? '';
   const before = stdout.length + stderr.length;
   if (r.isImage || before < MIN_CHARS) return null;
-  if (/\bSQUEEZE=0\b/.test(command) || /^\s*rtk\s/.test(command)) return null;
+  if (/\bSQUEEZE=0\b/.test(command)) return null;
 
   let out = squeeze(stdout, command);
   let kind: Kind | 'jev' = out.kind;

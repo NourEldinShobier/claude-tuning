@@ -4,7 +4,6 @@ import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { loadRoster, parseSkill } from '../src/roster';
 import { block, skip } from '../src/suggest';
-import { MARK, patch } from '../src/cap-context-mode';
 
 describe('roster', () => {
   test('reads plain and folded descriptions', () => {
@@ -40,31 +39,6 @@ describe('suggest', () => {
   });
 });
 
-// Needs context-mode installed on this machine; CI has no Claude Code install.
-const cmRoot = join(homedir(), '.claude', 'plugins', 'cache', 'context-mode', 'context-mode');
-const cmVersions = existsSync(cmRoot) ? readdirSync(cmRoot).sort() : [];
-
-describe.skipIf(!cmVersions.length)('context-mode cap', () => {
-  // Read lazily: skipIf still evaluates this describe body.
-  const read = () => readFileSync(join(cmRoot, cmVersions.at(-1) ?? '', 'hooks', 'sessionstart.mjs'), 'utf8');
-
-  test('patches the installed context-mode once', () => {
-    const once = patch(read().replace(/\n\s*\/\/ \[claude-tuning[^\n]*[\s\S]*?\n  }\n/, '\n'));
-    expect(once).toContain(MARK);
-    expect(patch(once!)).toBeNull();
-  });
-
-  test('the patched cut keeps the start and stays under 10,000 characters', () => {
-    let additionalContext = `<rules>${'r'.repeat(4600)}</rules>\n` + 'line of session guide\n'.repeat(1200);
-    // Run the exact snippet the patch inserts.
-    const snippet = /if \(additionalContext\.length > 9500\) \{[\s\S]*?\n  \}/.exec(patch(read().replace(/\n\s*\/\/ \[claude-tuning[^\n]*[\s\S]*?\n  }\n/, '\n'))!)![0];
-    additionalContext = new Function('additionalContext', `${snippet}; return additionalContext;`)(additionalContext);
-    expect(additionalContext.length).toBeLessThan(10_000);
-    expect(additionalContext.startsWith(`<rules>${'r'.repeat(4600)}</rules>`)).toBe(true);
-    expect(additionalContext).toContain('ctx_search');
-  });
-});
-
 import { eligible, isComplex } from '../src/route-model';
 
 describe('model routing', () => {
@@ -86,7 +60,7 @@ import { UPSTREAMS, plugins } from '../src/upstreams';
 import { isBehind } from '../src/check-upstreams';
 
 describe('settings merge', () => {
-  const want = desired({ rtk: true, codebaseMemory: false });
+  const want = desired({ codebaseMemory: false });
 
   test('keeps existing keys and hooks, adds what is missing', () => {
     const current: Settings = { model: 'opus', env: { FOO: 'bar' }, hooks: { PreToolUse: [{ matcher: 'Write', hooks: [{ type: 'command', command: 'prettier' }] }] } };
@@ -95,7 +69,7 @@ describe('settings merge', () => {
     expect(next.env!.FOO).toBe('bar');
     expect(next.env!.PONYTAIL_SUBAGENT_MATCHER).toBeDefined();
     expect(next.env!.CLAUDE_CODE_SUBAGENT_MODEL).toBeUndefined(); // subagent limits are personal, not ours to set
-    expect(next.hooks!.PreToolUse!.length).toBe(2);
+    expect(next.hooks!.PreToolUse).toEqual(current.hooks!.PreToolUse);
     expect(changes.length).toBeGreaterThan(0);
   });
 
@@ -119,7 +93,7 @@ describe('settings merge', () => {
   });
 
   test('hooks for a tool that is not installed are not written', () => {
-    expect(Object.keys(desired({ rtk: false, codebaseMemory: false }).hooks ?? {})).toEqual([]);
+    expect(Object.keys(desired({ codebaseMemory: false }).hooks ?? {})).toEqual([]);
   });
 });
 
@@ -145,9 +119,9 @@ describe('upstreams', () => {
     for (const p of paths) expect(existsSync(p)).toBe(true);
   });
 
-  test('optional upstreams say what replaces them', () => {
-    const optional = UPSTREAMS.filter((u) => u.optional).map((u) => u.id);
-    expect(optional.sort()).toEqual(['context-mode', 'rtk']);
+  test('tools our own squeeze and stash replace are not in the set', () => {
+    expect(UPSTREAMS.map((u) => u.id)).not.toContain('rtk');
+    expect(UPSTREAMS.map((u) => u.id)).not.toContain('context-mode');
   });
 
   test('no third-party code is vendored: only our own src/, skills/ and hooks/', async () => {
@@ -170,20 +144,19 @@ import { commandName } from '../src/settings';
 describe('hook identity', () => {
   test('an absolute path to the same tool is the same hook', () => {
     expect(commandName('"C:/Users/x/.local/bin/codebase-memory-mcp.exe"')).toBe('codebase-memory-mcp');
-    expect(commandName('rtk hook claude')).toBe('rtk');
-    expect(commandName('/usr/local/bin/rtk hook claude')).toBe('rtk');
+    expect(commandName('codebase-memory-mcp hook-augment')).toBe('codebase-memory-mcp');
+    expect(commandName('/usr/local/bin/codebase-memory-mcp hook-augment')).toBe('codebase-memory-mcp');
   });
 
   test('settings already containing the tuning are left alone, whatever paths they use', () => {
     const current: Settings = {
       hooks: {
         PreToolUse: [
-          { matcher: 'Bash|PowerShell', hooks: [{ type: 'command', command: '/opt/homebrew/bin/rtk hook claude' }] },
           { matcher: 'Grep|Glob|Bash', hooks: [{ type: 'command', command: 'C:/bin/codebase-memory-mcp.exe', args: ['hook-augment'], timeout: 5 }] },
         ],
       },
     };
-    const { changes } = merge(current, { hooks: desired({ rtk: true, codebaseMemory: true }).hooks!.PreToolUse ? { PreToolUse: desired({ rtk: true, codebaseMemory: true }).hooks!.PreToolUse! } : {} });
+    const { changes } = merge(current, { hooks: { PreToolUse: desired({ codebaseMemory: true }).hooks!.PreToolUse! } });
     expect(changes).toEqual([]);
   });
 });
