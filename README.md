@@ -76,12 +76,31 @@ Running setup twice is safe. The second run changes nothing.
 | squeeze everywhere | Set the environment variable `SQUEEZE=0` |
 | All of it | `claude plugin disable claude-tuning@claude-tuning` |
 
-## Where things come from
+## Tools we use
 
 We copy no third-party code. Each tool installs from its own repo at a pinned version.
 
-- [UPSTREAMS.md](UPSTREAMS.md) lists each tool's source, licence and pinned commit.
-- squeeze and stash are our own clean-room rewrites of what rtk and context-mode do.
+| Tool | Licence | Pinned | How we use it |
+|---|---|---|---|
+| [web-search](https://github.com/NourEldinShobier/web-search) | MIT | 0.6.1 | Installed by setup |
+| [ponytail](https://github.com/DietrichGebert/ponytail) | MIT | 4.10.0 | Installed by setup |
+| [i-have-adhd](https://github.com/ayghri/i-have-adhd) | MIT | 0.3.0 | Installed by setup |
+| [codebase-memory-mcp](https://github.com/DeusData/codebase-memory-mcp) | MIT | 0.11.0 | You install it; setup adds its hooks |
+| [rtk](https://github.com/rtk-ai/rtk) | Apache-2.0 | 0.10.0 | Optional (`--with=rtk`). Our **squeeze** replaces it. |
+| [context-mode](https://github.com/mksglu/context-mode) | Elastic-2.0 | 1.0.169 | Optional (`--with=context-mode`). Our **stash** replaces it. |
+
+**Services:**
+
+| Service | Used by |
+|---|---|
+| [TypeSafe Jev](https://typesafe.ai) | Skill suggestions, model routing, squeeze, stash ranking, web-search planning |
+| [Jina](https://jina.ai) | web-search (search, page reading, reranking) and stash URL loading |
+
+**Runtime:** [Bun](https://bun.sh) runs everything. Only Bun's built-ins are used: SQLite, fetch and spawn.
+
+More detail, including pinned commits and what we change in each tool: [UPSTREAMS.md](UPSTREAMS.md).
+
+- squeeze and stash are our own clean-room rewrites. We wrote them from how rtk and context-mode behave, never from their source.
 - `bun run upstreams` shows which tools have newer releases.
 
 To update one:
