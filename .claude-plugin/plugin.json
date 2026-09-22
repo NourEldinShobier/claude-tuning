@@ -1,9 +1,16 @@
 {
   "name": "claude-tuning",
-  "version": "0.2.0",
-  "description": "Personal Claude Code tuning with Jev: skill suggestions per turn, Opus for complex coding subagents, and context-mode's session-start injection kept under the 10,000-character hook limit.",
+  "version": "0.3.0",
+  "description": "Token-efficient Claude Code setup: one command installs the pinned plugin set and recommended settings, plus Jev skill suggestion, Opus routing for complex subagents, and a context-mode hook-size fix.",
   "author": {
     "name": "Nour Eldin Shobier"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "keywords": [
+    "claude-code",
+    "tokens",
+    "context",
+    "hooks",
+    "setup"
+  ]
 }

@@ -1,14 +1,23 @@
 {
   "name": "claude-tuning",
   "owner": {
-    "name": "Nour Eldin Shobier"
+    "name": "Nour Eldin Shobier",
+    "url": "https://github.com/NourEldinShobier"
   },
+  "description": "A token-efficient Claude Code setup: our own tuning plugin plus the third-party plugins it pins.",
   "plugins": [
     {
       "name": "claude-tuning",
       "source": "./",
-      "description": "Jev skill suggestions, Jev model routing for subagents, context-mode injection cap"
+      "description": "Jev skill suggestions, Opus routing for complex subagents, context-mode hook cap, and the setup command"
+    },
+    {
+      "name": "web-search",
+      "source": {
+        "source": "github",
+        "repo": "NourEldinShobier/web-search"
+      },
+      "description": "Token-efficient web, news, paper and image search plus page/PDF reading"
     }
-  ],
-  "description": "Personal Claude Code tuning"
+  ]
 }

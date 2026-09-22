@@ -71,3 +71,79 @@ describe('model routing', () => {
     expect(isComplex(0.9, 0.95)).toBe(false);
   });
 });
+
+import { desired, merge, type Settings } from '../src/settings';
+import { UPSTREAMS, plugins } from '../src/upstreams';
+import { isBehind } from '../src/check-upstreams';
+
+describe('settings merge', () => {
+  const want = desired({ rtk: true, codebaseMemory: false });
+
+  test('keeps existing keys and hooks, adds what is missing', () => {
+    const current: Settings = { model: 'opus', env: { FOO: 'bar' }, hooks: { PreToolUse: [{ matcher: 'Write', hooks: [{ type: 'command', command: 'prettier' }] }] } };
+    const { next, changes } = merge(current, want);
+    expect(next.model).toBe('opus');
+    expect(next.env!.FOO).toBe('bar');
+    expect(next.env!.CLAUDE_CODE_SUBAGENT_MODEL).toBe('sonnet');
+    expect(next.hooks!.PreToolUse!.length).toBe(2);
+    expect(changes.length).toBeGreaterThan(0);
+  });
+
+  test('is idempotent: a second merge changes nothing', () => {
+    const once = merge({}, want).next;
+    expect(merge(once, want).changes).toEqual([]);
+  });
+
+  test('hooks for a tool that is not installed are not written', () => {
+    expect(Object.keys(desired({ rtk: false, codebaseMemory: false }).hooks ?? {})).toEqual([]);
+  });
+});
+
+describe('upstreams', () => {
+  test('every entry is installable: licence, version and a plugin id or install commands', () => {
+    for (const u of UPSTREAMS) {
+      expect(u.repo).toMatch(/^[\w.-]+\/[\w.-]+$/);
+      expect(u.license.length).toBeGreaterThan(0);
+      expect(u.version).toMatch(/^\d+\.\d+/);
+      if (u.kind === 'plugin') expect(`${u.plugin}@${u.marketplace}`).not.toContain('undefined');
+      else expect(Object.keys(u.install ?? {})).toEqual(['darwin', 'linux', 'win32']);
+    }
+    expect(plugins().length).toBeGreaterThan(3);
+  });
+
+  test('no third-party code is vendored: only our own src/, skills/ and hooks/', async () => {
+    const { readdirSync } = await import('node:fs');
+    expect(readdirSync('src').every((f) => f.endsWith('.ts'))).toBe(true);
+  });
+
+  test('behind only when the upstream moved past the pin', () => {
+    const u = UPSTREAMS[0]!;
+    expect(isBehind(u, { version: u.version })).toBe(false);
+    expect(isBehind(u, { version: '99.0.0' })).toBe(true);
+    expect(isBehind({ ...u, version: '1.0', commit: 'abc1234' }, { commit: 'abc12345678' })).toBe(false);
+    expect(isBehind({ ...u, version: '1.0', commit: 'abc1234' }, { commit: 'def4567' })).toBe(true);
+  });
+});
+
+import { commandName } from '../src/settings';
+
+describe('hook identity', () => {
+  test('an absolute path to the same tool is the same hook', () => {
+    expect(commandName('"C:/Users/x/.local/bin/codebase-memory-mcp.exe"')).toBe('codebase-memory-mcp');
+    expect(commandName('rtk hook claude')).toBe('rtk');
+    expect(commandName('/usr/local/bin/rtk hook claude')).toBe('rtk');
+  });
+
+  test('settings already containing the tuning are left alone, whatever paths they use', () => {
+    const current: Settings = {
+      hooks: {
+        PreToolUse: [
+          { matcher: 'Bash|PowerShell', hooks: [{ type: 'command', command: '/opt/homebrew/bin/rtk hook claude' }] },
+          { matcher: 'Grep|Glob|Bash', hooks: [{ type: 'command', command: 'C:/bin/codebase-memory-mcp.exe', args: ['hook-augment'], timeout: 5 }] },
+        ],
+      },
+    };
+    const { changes } = merge(current, { hooks: desired({ rtk: true, codebaseMemory: true }).hooks!.PreToolUse ? { PreToolUse: desired({ rtk: true, codebaseMemory: true }).hooks!.PreToolUse! } : {} });
+    expect(changes).toEqual([]);
+  });
+});

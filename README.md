@@ -1,39 +1,77 @@
 # claude-tuning
 
-Personal Claude Code tuning, as a local plugin. Three hooks:
+A token-efficient Claude Code setup in one command: a pinned set of plugins, the settings that make them work together, and three of our own hooks that cut wasted tokens.
 
-1. **Skill suggestions with Jev** (`UserPromptSubmit`). Before each turn, TypeSafe's Jev ranks every skill Claude can load and checks whether the request needs one. It then re-reads the top three with their `SKILL.md` openings and can reject all of them. If one fits, Claude gets one ignorable line: `Relevant to the current request: <skill>`. If none fits, Claude gets nothing. This follows [TypeSafe's skill-suggestion cookbook](https://docs.typesafe.ai/cookbooks/skill_suggestion), which halved wrong and needless skill loads on a 182-skill roster.
-2. **Model routing with Jev** (`PreToolUse` on `Agent`). When Claude starts a subagent without choosing a model, Jev reads the task and switches it to Opus if it is complex coding (multi-file changes, architecture, hard bugs, performance). An explicit model is kept, read-only agent types (Explore) are skipped, and nothing is downgraded, so simple work stays on the Sonnet default. Adds about 0.8 s per agent launch.
-3. **context-mode cap** (`SessionStart`). Claude Code passes at most 10,000 characters of hook output to the model. context-mode injected up to 27,000, so the model saw a 2 KB preview and most of its routing rules were lost. This patches context-mode's `sessionstart.mjs` to cut its session summary at a line break, keeping the rules. It re-applies itself after context-mode updates; the first session after an update runs unpatched.
+Works on macOS, Linux and Windows. Everything is TypeScript run by [Bun](https://bun.sh).
 
-## Install
+## Quick start
 
 ```bash
-claude plugin marketplace add D:\code\projects\claude-tuning
+claude plugin marketplace add NourEldinShobier/claude-tuning
 claude plugin install claude-tuning@claude-tuning
 ```
 
-Then restart Claude Code. Needs Bun and `TYPESAFE_API_KEY`; without the key the suggester does nothing.
+Restart Claude Code, then run the setup (it prints a plan and changes nothing until you say so):
 
-## Numbers (test/eval.ts, 14 prompts, 150 skills)
+```bash
+bun ~/.claude/plugins/cache/claude-tuning/claude-tuning/*/src/setup.ts
+bun ~/.claude/plugins/cache/claude-tuning/claude-tuning/*/src/setup.ts --apply
+```
 
-- 12 of 14 right: 7 of 8 skill requests, 5 of 6 requests that need no skill. The one wrong suggestion is ignorable; the one miss picked another docs skill.
-- About 1.2–1.5 s added to each prompt of 12 characters or more. Slash commands and short replies ("go", "yes") skip it.
-- Right picks scored 0.86 or more on "does this skill fit", needless ones 0.50–0.88, so the fit threshold is 0.6 (the cookbook uses 0.30).
+Or just ask Claude: **"run the tuning setup"**. The bundled `tune` skill does the same thing.
 
-Model routing (test/eval-route.ts): 14 of 14 right, with complex tasks scoring 0.84–0.97 and simple ones 0.01–0.09; 6 borderline tasks (a single-file flag, tests for one module, a dark-mode toggle, a flaky CI test, a 40-file migration) also landed as expected.
+Then restart Claude Code once more, so the new plugins and hooks load.
 
-## Files
+## What the setup does
 
-| File | Role |
-|---|---|
-| `src/suggest.ts` | The hook: two Jev requests, thresholds, output |
-| `src/roster.ts` | Reads personal, project and enabled plugins' skills |
-| `src/builtins.ts` | Skills Claude Code lists but that have no file on disk (built-ins, Anthropic's). Update when Claude Code adds skills. |
-| `src/route-model.ts` | Model routing for subagents |
-| `src/cap-context-mode.ts` | The context-mode patch |
-| `test/eval.ts`, `test/eval-route.ts` | Live checks against Jev |
+1. **Installs the pinned plugins**, each from its own repository: web search, the simplicity and answer-shape skills, the context sandbox, and the documentation lookup. See [UPSTREAMS.md](UPSTREAMS.md).
+2. **Merges the recommended settings** into `~/.claude/settings.json`: at most 5 parallel subagents, Sonnet as the subagent default, a 700k auto-compact window, the hooks for `rtk` and `codebase-memory-mcp` when those are installed, and the exemption that keeps the simplicity rules out of the web-search researcher (about 1.4k tokens per research agent). Existing values are kept and the old file is saved as `settings.json.bak`.
+3. **Reports what is missing**: the two command-line tools and the two API keys, with the command for your platform. It never installs a binary for you and never prints a key.
 
-Debug: set `SKILL_SUGGEST_DEBUG=1` or `ROUTE_MODEL_DEBUG=1` to print decisions to stderr. Turn the whole thing off: `claude plugin disable claude-tuning@claude-tuning`.
+`--only=web-search,ponytail` limits it to some tools. Running it twice changes nothing the second time.
 
-Gate questions and suggestion wording are from TypeSafe's cookbook.
+## What this repository adds itself
+
+Three hooks, all ours, all optional:
+
+| Hook | What it does | Measured |
+|---|---|---|
+| **Skill suggestion** (`UserPromptSubmit`) | [TypeSafe's Jev](https://docs.typesafe.ai/cookbooks/skill_suggestion) ranks every skill Claude can load, re-reads the top three with their `SKILL.md` openings, and adds one ignorable line naming the best fit, or nothing. Matters because Claude Code caps its skill listing, so with a large roster many skills reach the model as a bare name. | 12 of 14 test prompts right; about 1.2–1.5 s per prompt; `bun test/eval.ts` |
+| **Model routing** (`PreToolUse` on `Agent`) | When Claude starts a subagent without choosing a model, Jev decides whether the task is complex coding and switches it to Opus. Never downgrades, never overrides an explicit choice, skips read-only agents. | 14 of 14 test tasks right, plus 6 borderline; about 0.8 s per agent; `bun test/eval-route.ts` |
+| **context-mode cap** (`SessionStart`) | Claude Code hands the model at most 10,000 characters of hook output; context-mode was sending up to 27,000, so the model got a 2 KB preview and lost its routing rules. This trims the session summary at a line break and keeps the rules. Re-applies itself after upstream updates. | — |
+
+The Jev hooks need `TYPESAFE_API_KEY`. Without it they do nothing and everything else still works.
+
+## Upstreams, licences and updates
+
+No third-party code is copied into this repository. Each tool is installed from its own source at a pinned version, so its licence and its updates stay with its author. Three of them publish no licence at all, and one is Elastic 2.0, which is exactly why this repository installs rather than vendors.
+
+[UPSTREAMS.md](UPSTREAMS.md) lists each tool: source, licence, the version and commit we tested against, what it is for, and what we change about it.
+
+See what has moved since those pins:
+
+```bash
+bun run upstreams
+```
+
+It prints the pinned and latest version for each, with a link. To adopt one: read its changelog, update the version (and commit) in `src/upstreams.ts`, run `bun test`, then `bun run setup --apply`. `UPSTREAMS.md` is generated from that file with `bun run upstreams:doc`, so the table can't drift from what the setup installs.
+
+## Development
+
+```bash
+bun install
+bun test          # unit tests, no network
+bun run typecheck
+bun test/eval.ts        # live check of skill suggestion (needs TYPESAFE_API_KEY)
+bun test/eval-route.ts  # live check of model routing
+```
+
+Debug a session: `SKILL_SUGGEST_DEBUG=1` or `ROUTE_MODEL_DEBUG=1` prints each decision to stderr. Turn everything off with `claude plugin disable claude-tuning@claude-tuning`.
+
+## Credits
+
+The skill-suggestion design, its gate questions and the wording of the suggestion come from [TypeSafe's skill-suggestion cookbook](https://docs.typesafe.ai/cookbooks/skill_suggestion). The tools this setup installs are other people's work; [UPSTREAMS.md](UPSTREAMS.md) credits each one.
+
+## Licence
+
+[MIT](LICENSE) for everything in this repository.

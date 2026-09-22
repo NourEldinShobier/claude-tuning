@@ -1,1 +1,17 @@
-{"name":"claude-tuning","private":true,"type":"module","devDependencies":{"@types/bun":"latest"}}
+{
+  "name": "claude-tuning",
+  "private": false,
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "license": "MIT",
+  "description": "One command to set up a token-efficient Claude Code: pinned plugins, recommended settings, and Jev-powered skill suggestion and model routing.",
+  "scripts": {
+    "setup": "bun src/setup.ts",
+    "upstreams": "bun src/check-upstreams.ts",
+    "upstreams:doc": "bun src/upstreams-doc.ts",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  }
+}
