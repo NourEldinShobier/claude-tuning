@@ -80,14 +80,16 @@ Running setup twice is safe. The second run changes nothing.
 
 We copy no third-party code. Each tool installs from its own repo at a pinned version.
 
-| Tool | Licence | Pinned | How we use it |
-|---|---|---|---|
-| [web-search](https://github.com/NourEldinShobier/web-search) | MIT | 0.6.1 | Installed by setup |
-| [ponytail](https://github.com/DietrichGebert/ponytail) | MIT | 4.10.0 | Installed by setup |
-| [i-have-adhd](https://github.com/ayghri/i-have-adhd) | MIT | 0.3.0 | Installed by setup |
-| [codebase-memory-mcp](https://github.com/DeusData/codebase-memory-mcp) | MIT | 0.11.0 | You install it; setup adds its hooks |
-| [rtk](https://github.com/rtk-ai/rtk) | Apache-2.0 | 0.10.0 | Optional (`--with=rtk`). Our **squeeze** replaces it. |
-| [context-mode](https://github.com/mksglu/context-mode) | Elastic-2.0 | 1.0.169 | Optional (`--with=context-mode`). Our **stash** replaces it. |
+| Tool | What it does | Reported gain | Licence | How we use it |
+|---|---|---|---|---|
+| [web-search](https://github.com/NourEldinShobier/web-search) | Web search and page reading as compact markdown | ~24x fewer tokens and ~3.5x faster than calling Jina directly | MIT | Installed by setup |
+| [ponytail](https://github.com/DietrichGebert/ponytail) | Makes Claude write the smallest code that works | 54% less code, 22% fewer tokens, 20% cheaper, 27% faster | MIT | Installed by setup |
+| [i-have-adhd](https://github.com/ayghri/i-have-adhd) | Answers lead with the next action: numbered steps, no filler | No published numbers; shorter answers | MIT | Installed by setup |
+| [codebase-memory-mcp](https://github.com/DeusData/codebase-memory-mcp) | Code graph: "where is X defined, who calls X" without reading whole files | 120x fewer tokens (3.4k vs 412k over 5 queries) | MIT | You install it; setup adds its hooks |
+| [rtk](https://github.com/rtk-ai/rtk) | Shrinks shell output | Up to 90% less output | Apache-2.0 | Optional (`--with=rtk`). Our **squeeze** replaces it. |
+| [context-mode](https://github.com/mksglu/context-mode) | Keeps big outputs in a sandbox and returns only the answer | 315 KB became 5.4 KB (98% less) | Elastic-2.0 | Optional (`--with=context-mode`). Our **stash** replaces it. |
+
+Gains come from each project's own README and benchmarks, except web-search, which is ours (`bench/run.ts` in its repo). They measure different things, so the numbers don't add up to one total. Pinned versions are in [UPSTREAMS.md](UPSTREAMS.md).
 
 **Services:**
 
