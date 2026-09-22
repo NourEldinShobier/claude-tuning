@@ -21,6 +21,8 @@ export interface Upstream {
   why: string;
   /** What claude-tuning changes about it, if anything. */
   ours?: string;
+  /** Set when our own code covers it: skipped by setup unless asked for with --with=<id>. Says what replaces it. */
+  optional?: string;
   /** Install command per platform, for `kind: 'cli' | 'mcp'`; run by the user, never by us. */
   install?: { darwin: string; linux: string; win32: string };
 }
@@ -69,13 +71,14 @@ export const UPSTREAMS: Upstream[] = [
     plugin: 'context-mode',
     version: '1.0.169',
     commit: '6f0cc6841c68',
+    optional: 'stash (src/stash/) provides the same sandbox-and-search workflow as an MCP server with no licence restrictions. Add context-mode for its session memory and wider tool set.',
     why: 'Runs big commands, files and pages in a sandbox and returns only the derived answer, so raw bytes stay out of the context window.',
     ours: 'Its session-start injection is capped to fit Claude Code\'s 10,000-character hook limit (src/cap-context-mode.ts); above that the model only receives a 2 KB preview and loses the routing rules.',
   },
   {
     id: 'context7',
     repo: 'upstash/context7',
-    license: 'none',
+    license: 'MIT',
     kind: 'plugin',
     marketplace: 'context7-marketplace',
     plugin: 'context7',
@@ -86,16 +89,17 @@ export const UPSTREAMS: Upstream[] = [
   {
     id: 'rtk',
     repo: 'rtk-ai/rtk',
-    license: 'none',
+    license: 'Apache-2.0',
     kind: 'cli',
     version: '0.10.0',
+    optional: 'squeeze (src/squeeze/) filters Bash output after it runs; on our git log/diff benchmark it returns 2-5x less than rtk. Add rtk for its wider command coverage.',
     why: 'Compresses shell output (git, tests, builds) before it reaches the model. Hooked on every Bash and PowerShell call.',
     install: { darwin: 'brew install rtk', linux: 'curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh', win32: 'winget install rtk-ai.rtk' },
   },
   {
     id: 'codebase-memory',
     repo: 'DeusData/codebase-memory-mcp',
-    license: 'none',
+    license: 'MIT',
     kind: 'mcp',
     version: '0.11.0',
     why: 'Code graph for structural questions (where is X defined, who calls X) without grepping whole files into context.',

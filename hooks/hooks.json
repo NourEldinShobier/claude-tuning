@@ -42,6 +42,21 @@
           }
         ]
       }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/src/squeeze/hook.ts"
+            ],
+            "timeout": 8
+          }
+        ]
+      }
     ]
   }
 }

@@ -120,9 +120,24 @@ describe('upstreams', () => {
     expect(plugins().length).toBeGreaterThan(3);
   });
 
+  test('every script the plugin wires (hooks.json, .mcp.json) exists', async () => {
+    const { existsSync, readFileSync } = await import('node:fs');
+    const wired = [readFileSync('hooks/hooks.json', 'utf8'), readFileSync('.mcp.json', 'utf8')].join('\n');
+    const paths = [...wired.matchAll(/\$\{CLAUDE_PLUGIN_ROOT\}\/([\w./-]+)/g)].map((m) => m[1]!);
+    expect(paths).toContain('src/squeeze/hook.ts');
+    expect(paths).toContain('src/stash/server.ts');
+    for (const p of paths) expect(existsSync(p)).toBe(true);
+  });
+
+  test('optional upstreams say what replaces them', () => {
+    const optional = UPSTREAMS.filter((u) => u.optional).map((u) => u.id);
+    expect(optional.sort()).toEqual(['context-mode', 'rtk']);
+  });
+
   test('no third-party code is vendored: only our own src/, skills/ and hooks/', async () => {
     const { readdirSync } = await import('node:fs');
-    expect(readdirSync('src').every((f) => f.endsWith('.ts'))).toBe(true);
+    const files = readdirSync('src', { recursive: true, withFileTypes: true }).filter((e) => e.isFile());
+    expect(files.filter((e) => !e.name.endsWith('.ts'))).toEqual([]);
   });
 
   test('behind only when the upstream moved past the pin', () => {

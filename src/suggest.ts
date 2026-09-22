@@ -5,6 +5,7 @@
  * 2. re-read the top three with their SKILL.md openings, free to reject all of them.
  * Output is one ignorable line added to the turn (nothing when no skill fits), so Claude Code's cached prefix is untouched.
  */
+import { ask, jevKey, type Question } from './jev';
 import { loadRoster, type Skill } from './roster';
 
 const SHORTLIST = 3;
@@ -14,8 +15,6 @@ const GATE = 0.3;
 const FITS = 0.6;
 const TIMEOUT_MS = 4_000;
 
-type Question = { type: 'noul'; instructions: string } | { type: 'choice'; instructions: string; criteria: Record<string, string> };
-type Answer = { type: 'noul'; noul: number } | { type: 'choice'; choice: string; probabilities?: Record<string, number> };
 
 // Gate questions verbatim from the cookbook: they separate acting from explaining.
 const GATE_QUESTIONS: Record<string, string> = {
@@ -27,17 +26,6 @@ const GATE_QUESTIONS: Record<string, string> = {
     "Could a knowledgeable generalist fully satisfy this request in prose, with no tools, no documentation, and no access to the user's files or accounts?",
 };
 const INVERTED = new Set(['prose_suffices']);
-
-async function ask(state: unknown, questions: Record<string, Question>, signal: AbortSignal): Promise<Record<string, Answer | undefined>> {
-  const res = await fetch('https://api.typesafe.ai/v1/systemone', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${process.env.TYPESAFE_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model: 'jev-latest', state, questions }),
-    signal,
-  });
-  if (!res.ok) throw new Error(`Jev HTTP ${res.status}`);
-  return ((await res.json()) as { answers?: Record<string, Answer> }).answers ?? {};
-}
 
 /** Option keys must be plain; skill ids contain ':' and '-'. */
 const key = (i: number) => `s${i}`;
@@ -119,7 +107,7 @@ if (import.meta.main) {
   try {
     const input = JSON.parse((await Bun.stdin.text()) || '{}') as { prompt?: string; cwd?: string };
     const prompt = input.prompt ?? '';
-    if (process.env.TYPESAFE_API_KEY && !skip(prompt)) {
+    if (jevKey() && !skip(prompt)) {
       const started = performance.now();
       const id = await suggest(prompt, loadRoster(input.cwd ?? process.cwd()), AbortSignal.timeout(TIMEOUT_MS));
       if (process.env.SKILL_SUGGEST_DEBUG) process.stderr.write(`skill-suggest: ${id ?? 'none'} in ${Math.round(performance.now() - started)} ms\n`);
