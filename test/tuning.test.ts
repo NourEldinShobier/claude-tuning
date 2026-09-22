@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { loadRoster, parseSkill } from '../src/roster';
@@ -14,11 +14,17 @@ describe('roster', () => {
     expect(parseSkill('---\ndescription: "Quoted: yes"\n---\n').description).toBe('Quoted: yes');
   });
 
-  test('loads the real roster with plugin prefixes', () => {
+  test('always finds the built-in skills, and every entry has a description', () => {
+    const roster = loadRoster(process.cwd());
+    expect(roster.some((s) => s.id === 'code-review')).toBe(true);
+    expect(roster.every((s) => s.description.length > 0)).toBe(true);
+  });
+
+  // Needs this machine's own skills and plugins.
+  test.skipIf(!existsSync(join(homedir(), '.claude', 'skills')))('reads personal and plugin skills', () => {
     const roster = loadRoster(process.cwd());
     expect(roster.length).toBeGreaterThan(100);
     expect(roster.some((s) => s.id === 'web-search:web-search')).toBe(true);
-    expect(roster.every((s) => s.description.length > 0)).toBe(true);
   });
 });
 
@@ -34,10 +40,12 @@ describe('suggest', () => {
   });
 });
 
-describe('context-mode cap', () => {
-  const root = join(homedir(), '.claude', 'plugins', 'cache', 'context-mode', 'context-mode');
-  const version = readdirSync(root).sort().at(-1)!;
-  const src = readFileSync(join(root, version, 'hooks', 'sessionstart.mjs'), 'utf8');
+// Needs context-mode installed on this machine; CI has no Claude Code install.
+const cmRoot = join(homedir(), '.claude', 'plugins', 'cache', 'context-mode', 'context-mode');
+const cmVersions = existsSync(cmRoot) ? readdirSync(cmRoot).sort() : [];
+
+describe.skipIf(!cmVersions.length)('context-mode cap', () => {
+  const src = readFileSync(join(cmRoot, cmVersions.at(-1) ?? '', 'hooks', 'sessionstart.mjs'), 'utf8');
 
   test('patches the installed context-mode once', () => {
     const once = patch(src.replace(/\n\s*\/\/ \[claude-tuning[^\n]*[\s\S]*?\n  }\n/, '\n'));
