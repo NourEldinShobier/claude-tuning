@@ -88,7 +88,7 @@ We copy no third-party code. Each tool installs from its own repo at a pinned ve
 | [i-have-adhd](https://github.com/ayghri/i-have-adhd) | Answers lead with the next action: numbered steps, no filler | No published numbers; shorter answers | MIT | Installed by setup |
 | [codebase-memory-mcp](https://github.com/DeusData/codebase-memory-mcp) | Code graph: "where is X defined, who calls X" without reading whole files | 120x fewer tokens (3.4k vs 412k over 5 queries) | MIT | You install it; setup adds its hooks |
 
-Gains for squeeze, stash and web-search are our own measurements. squeeze vs rtk: six git commands in two repos, rtk 0.10.0, run 2026-09-22. rtk came out smaller on one test run, where it cut the failure details. Gains for the other tools come from their own READMEs and benchmarks. They measure different things, so the numbers don't add up to one total. Pinned versions are in [UPSTREAMS.md](UPSTREAMS.md).
+Gains for squeeze, stash and web-search are our own measurements. squeeze vs rtk: six git commands in two repos, rtk 0.10.0, run 2026-09-22. rtk came out smaller on one `bun test` run, where it printed only a short summary. Gains for the other tools come from their own READMEs and benchmarks. They measure different things, so the numbers don't add up to one total. Pinned versions are in [UPSTREAMS.md](UPSTREAMS.md).
 
 **Services:**
 
