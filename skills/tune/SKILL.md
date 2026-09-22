@@ -20,7 +20,8 @@ After `--apply`, tell the user to restart Claude Code: hooks and plugins load at
 ## What it changes
 
 - Installs the plugins listed in `src/upstreams.ts`, each from its own repository at a pinned version.
-- Merges the settings in `src/settings.ts` into `~/.claude/settings.json`: subagent cap and default model, the ponytail exemption for the web-search researcher, the auto-compact window, and the codebase-memory-mcp hooks when it is installed (plus rtk's hook with `--with=rtk`). Existing values are kept and the old file is saved as `settings.json.bak`.
+- Merges the settings in `src/settings.ts` into `~/.claude/settings.json`: the ponytail exemption for the web-search researcher, the auto-compact window, and the codebase-memory-mcp hooks when it is installed (plus rtk's hook with `--with=rtk`). Existing values are kept and the old file is saved as `settings.json.bak`.
+- Adds the tool rules from `rules.md` to `~/.claude/CLAUDE.md` between `claude-tuning` markers (`--no-rules` skips it). If the user's CLAUDE.md already states these rules in its own words, suggest `--no-rules`.
 - Never installs binaries: it prints the command for this platform and lets the user run it.
 
 ## Updating an upstream

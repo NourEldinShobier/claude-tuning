@@ -76,17 +76,6 @@ export const UPSTREAMS: Upstream[] = [
     ours: 'Its session-start injection is capped to fit Claude Code\'s 10,000-character hook limit (src/cap-context-mode.ts); above that the model only receives a 2 KB preview and loses the routing rules.',
   },
   {
-    id: 'context7',
-    repo: 'upstash/context7',
-    license: 'MIT',
-    kind: 'plugin',
-    marketplace: 'context7-marketplace',
-    plugin: 'context7',
-    version: '1.0.2',
-    commit: 'c3248289c2ad',
-    why: 'Current library and framework documentation, instead of the model answering from memory.',
-  },
-  {
     id: 'rtk',
     repo: 'rtk-ai/rtk',
     license: 'Apache-2.0',

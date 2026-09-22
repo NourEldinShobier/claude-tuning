@@ -12,12 +12,9 @@ export interface Settings {
   [k: string]: unknown;
 }
 
-/** Tuning that is not code: limits, defaults and the two agent-facing rules. */
+/** Tuning that is not code: the auto-compact window, the ponytail exemption and the code-graph hooks. */
 export function desired(has: { rtk: boolean; codebaseMemory: boolean }): Settings {
   const env: Record<string, string> = {
-    // Each subagent costs about 11k tokens before it does any work, so parallelism is capped deliberately.
-    CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS: '5',
-    CLAUDE_CODE_SUBAGENT_MODEL: 'sonnet',
     // web-search's researcher agent gets no ponytail rules: it writes no code, and they cost ~1.4k tokens.
     PONYTAIL_SUBAGENT_MATCHER: '^(?!web-search:web-researcher$)',
   };
@@ -86,6 +83,19 @@ export function readSettings(path = settingsPath()): Settings {
   } catch (e) {
     throw new Error(`${path} is not valid JSON (${(e as Error).message}). Fix it first: a broken settings file disables every setting in it.`);
   }
+}
+
+export const claudeMdPath = () => join(configDir(), 'CLAUDE.md');
+const START = '<!-- claude-tuning:start -->';
+const END = '<!-- claude-tuning:end -->';
+
+/** CLAUDE.md with our rules block added, or replaced in place if an earlier version is there. Everything else is kept. */
+export function withRules(current: string, rules: string): string {
+  const block = `${START}\n${rules.trim()}\n${END}`;
+  const s = current.indexOf(START);
+  const e = current.indexOf(END);
+  if (s >= 0 && e > s) return current.slice(0, s) + block + current.slice(e + END.length);
+  return current.trim() ? `${current.trimEnd()}\n\n${block}\n` : `${block}\n`;
 }
 
 /** Writes settings.json, keeping a .bak of what was there. */

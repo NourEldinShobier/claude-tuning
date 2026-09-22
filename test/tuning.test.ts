@@ -81,7 +81,7 @@ describe('model routing', () => {
   });
 });
 
-import { desired, merge, type Settings } from '../src/settings';
+import { desired, merge, withRules, type Settings } from '../src/settings';
 import { UPSTREAMS, plugins } from '../src/upstreams';
 import { isBehind } from '../src/check-upstreams';
 
@@ -93,7 +93,8 @@ describe('settings merge', () => {
     const { next, changes } = merge(current, want);
     expect(next.model).toBe('opus');
     expect(next.env!.FOO).toBe('bar');
-    expect(next.env!.CLAUDE_CODE_SUBAGENT_MODEL).toBe('sonnet');
+    expect(next.env!.PONYTAIL_SUBAGENT_MATCHER).toBeDefined();
+    expect(next.env!.CLAUDE_CODE_SUBAGENT_MODEL).toBeUndefined(); // subagent limits are personal, not ours to set
     expect(next.hooks!.PreToolUse!.length).toBe(2);
     expect(changes.length).toBeGreaterThan(0);
   });
@@ -101,6 +102,20 @@ describe('settings merge', () => {
   test('is idempotent: a second merge changes nothing', () => {
     const once = merge({}, want).next;
     expect(merge(once, want).changes).toEqual([]);
+  });
+
+  test('rules block: appended once, replaced in place, the rest kept', () => {
+    const mine = '# My rules\n- be brief\n';
+    const once = withRules(mine, 'v1 rules');
+    expect(once.startsWith('# My rules')).toBe(true);
+    expect(once).toContain('v1 rules');
+    expect(withRules(once, 'v1 rules')).toBe(once);
+    const twice = withRules(once + '\n## After\n', 'v2 rules');
+    expect(twice).toContain('v2 rules');
+    expect(twice).not.toContain('v1 rules');
+    expect(twice).toContain('## After');
+    expect(twice.match(/claude-tuning:start/g)!.length).toBe(1);
+    expect(withRules('', 'x')).toBe('<!-- claude-tuning:start -->\nx\n<!-- claude-tuning:end -->\n');
   });
 
   test('hooks for a tool that is not installed are not written', () => {
@@ -117,7 +132,8 @@ describe('upstreams', () => {
       if (u.kind === 'plugin') expect(`${u.plugin}@${u.marketplace}`).not.toContain('undefined');
       else expect(Object.keys(u.install ?? {})).toEqual(['darwin', 'linux', 'win32']);
     }
-    expect(plugins().length).toBeGreaterThan(3);
+    expect(plugins().map((u) => u.id)).toContain('ponytail');
+    expect(UPSTREAMS.some((u) => u.id === 'context7')).toBe(false);
   });
 
   test('every script the plugin wires (hooks.json, .mcp.json) exists', async () => {

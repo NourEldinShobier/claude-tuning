@@ -8,7 +8,8 @@
  * Optional upstreams that our own code replaces are skipped unless named in --with=.
  */
 import { plugins, tools, UPSTREAMS } from './upstreams';
-import { desired, merge, readSettings, settingsPath, writeSettings } from './settings';
+import { copyFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { claudeMdPath, desired, merge, readSettings, settingsPath, withRules, writeSettings } from './settings';
 
 const APPLY = process.argv.includes('--apply');
 const ONLY = process.argv.find((a) => a.startsWith('--only='))?.slice(7).split(',');
@@ -99,7 +100,21 @@ async function main() {
     out(`  written (previous file kept as settings.json.bak)`);
   }
 
-  // 5. Keys, presence only.
+  // 5. Tool rules in CLAUDE.md, between markers so later runs replace only our block.
+  const mdPath = claudeMdPath();
+  const md = existsSync(mdPath) ? readFileSync(mdPath, 'utf8') : '';
+  const mdNext = withRules(md, readFileSync(`${import.meta.dir}/../rules.md`, 'utf8'));
+  out(`\n${bold('CLAUDE.md')} (${mdPath})`);
+  if (process.argv.includes('--no-rules')) out('  skipped (--no-rules)');
+  else if (mdNext === md) out('  tool rules already current');
+  else if (!APPLY) out('  would add the tool rules block (web-search, squeeze, stash, ponytail, code graph)');
+  else {
+    if (md) copyFileSync(mdPath, `${mdPath}.bak`);
+    writeFileSync(mdPath, mdNext);
+    out('  tool rules block written (previous file kept as CLAUDE.md.bak)');
+  }
+
+  // 6. Keys, presence only.
   out(`\n${bold('API keys')}`);
   out(`  JINA_API_KEY      ${process.env.JINA_API_KEY ? 'set' : 'not set — web search needs it (free: https://jina.ai/?sui=apikey)'}`);
   out(`  TYPESAFE_API_KEY  ${process.env.TYPESAFE_API_KEY ? 'set' : 'not set — optional; enables Jev skill suggestions, model routing and source picking'}`);

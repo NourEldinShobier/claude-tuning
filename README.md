@@ -11,22 +11,16 @@ claude plugin marketplace add NourEldinShobier/claude-tuning
 claude plugin install claude-tuning@claude-tuning
 ```
 
-Restart Claude Code, then run the setup (it prints a plan and changes nothing until you say so):
-
-```bash
-bun ~/.claude/plugins/cache/claude-tuning/claude-tuning/*/src/setup.ts
-bun ~/.claude/plugins/cache/claude-tuning/claude-tuning/*/src/setup.ts --apply
-```
-
-Or just ask Claude: **"run the tuning setup"**. The bundled `tune` skill does the same thing.
+Restart Claude Code, then type **`/claude-tuning:tune`** (or ask "run the tuning setup"). Claude shows the plan first and changes nothing until you agree. It works the same in any shell on macOS, Linux and Windows.
 
 Then restart Claude Code once more, so the new plugins and hooks load.
 
 ## What the setup does
 
-1. **Installs the pinned plugins**, each from its own repository: web search, the simplicity and answer-shape skills, and the documentation lookup. See [UPSTREAMS.md](UPSTREAMS.md).
-2. **Merges the recommended settings** into `~/.claude/settings.json`: at most 5 parallel subagents, Sonnet as the subagent default, a 700k auto-compact window, the `codebase-memory-mcp` hooks when it is installed, and the exemption that keeps the simplicity rules out of the web-search researcher (about 1.4k tokens per research agent). Existing values are kept and the old file is saved as `settings.json.bak`.
-3. **Reports what is missing**: the code-graph tool and the two API keys, with the command for your platform. It never installs a binary for you and never prints a key.
+1. **Installs the pinned plugins**, each from its own repository: web search, and the simplicity and answer-shape skills. See [UPSTREAMS.md](UPSTREAMS.md).
+2. **Merges the recommended settings** into `~/.claude/settings.json`: a 700k auto-compact window, the `codebase-memory-mcp` hooks when it is installed, and the exemption that keeps the simplicity rules out of the web-search researcher (about 1.4k tokens per research agent). Existing values are kept and the old file is saved as `settings.json.bak`.
+3. **Adds the tool rules to `~/.claude/CLAUDE.md`** ([rules.md](rules.md)), so Claude knows to use web-search, squeeze, stash and the code graph. They sit between `claude-tuning` markers: later runs replace only that block, and `--no-rules` skips it.
+4. **Reports what is missing**: the code-graph tool and the two API keys, with the command for your platform. It never installs a binary for you and never prints a key.
 
 `--only=web-search,ponytail` limits it to some tools. `--with=rtk,context-mode` adds the two optional upstreams that our own squeeze and stash replace. Running it twice changes nothing the second time.
 
