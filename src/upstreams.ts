@@ -29,18 +29,6 @@ export interface Upstream {
 
 export const UPSTREAMS: Upstream[] = [
   {
-    id: 'squeeze',
-    repo: 'NourEldinShobier/squeeze',
-    license: 'MIT',
-    kind: 'plugin',
-    marketplace: 'squeeze',
-    plugin: 'squeeze',
-    version: '0.2.0',
-    commit: 'e603c6c4d2e6',
-    why: 'Shrinks long Bash and PowerShell output before Claude reads it; the full text is saved to a file. 34–76% smaller on real commands, every cut marked.',
-    ours: 'Ours. Separate repo so it can be installed alone.',
-  },
-  {
     id: 'stash',
     repo: 'NourEldinShobier/stash',
     license: 'MIT',
@@ -86,6 +74,21 @@ export const UPSTREAMS: Upstream[] = [
     version: '0.3.0',
     commit: '6f1f982d0a47',
     why: 'Answers lead with the next action, numbered steps, no preamble. Shorter output is also cheaper output.',
+  },
+  {
+    id: 'rtk',
+    repo: 'rtk-ai/rtk',
+    license: 'Apache-2.0',
+    kind: 'cli',
+    version: '0.49.0',
+    why: 'Compresses shell output (git, tests, builds, docker, kubectl, package managers and more) before it reaches the model. Up to 90% less output.',
+    ours: 'Setup installs it with its official installer and adds its Claude Code hook (rtk hook claude) for Bash and PowerShell.',
+    install: {
+      darwin: 'curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh',
+      linux: 'curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh',
+      win32: "$d = Join-Path $env:USERPROFILE '.local\\bin'; New-Item -ItemType Directory -Force $d | Out-Null; $z = Join-Path $env:TEMP 'rtk.zip'; irm https://github.com/rtk-ai/rtk/releases/latest/download/rtk-x86_64-pc-windows-msvc.zip -OutFile $z; Expand-Archive $z -DestinationPath $d -Force",
+    },
+    bin: 'rtk',
   },
   {
     id: 'codebase-memory',

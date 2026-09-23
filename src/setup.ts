@@ -35,6 +35,13 @@ export function binPaths(bin: string, platform: string = process.platform): stri
   return [join(localAppData, 'Programs', bin, `${bin}.exe`), join(homedir(), '.local', 'bin', `${bin}.exe`)];
 }
 
+/** The command to call a tool by: its bare name when on PATH, else its full path in an installer location. */
+export async function binPath(bin: string): Promise<string | undefined> {
+  if (await has(bin)) return bin;
+  for (const p of binPaths(bin)) if (existsSync(p) && (await has(p))) return p.replace(/\\/g, '/');
+  return undefined;
+}
+
 /** Installed when on PATH or in one of the installer locations. */
 export async function hasBin(bin: string): Promise<boolean> {
   if (await has(bin)) return true;
@@ -127,7 +134,7 @@ async function main() {
   }
 
   // 4. Settings, merged.
-  const present = { codebaseMemory: await hasBin('codebase-memory-mcp') };
+  const present = { codebaseMemory: await hasBin('codebase-memory-mcp'), rtk: await binPath('rtk') };
   const current = readSettings();
   const { next, changes } = merge(current, desired(present));
   out(`\n${bold('Settings')} (${settingsPath()})`);
@@ -145,7 +152,7 @@ async function main() {
   out(`\n${bold('CLAUDE.md')} (${mdPath})`);
   if (process.argv.includes('--no-rules')) out('  skipped (--no-rules)');
   else if (mdNext === md) out('  tool rules already current');
-  else if (!APPLY) out('  would add the tool rules block (web-search, squeeze, stash, ponytail, code graph)');
+  else if (!APPLY) out('  would add the tool rules block (web-search, rtk, stash, ponytail, code graph)');
   else {
     if (md) copyFileSync(mdPath, `${mdPath}.bak`);
     writeFileSync(mdPath, mdNext);

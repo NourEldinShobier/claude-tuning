@@ -20,14 +20,6 @@
       "description": "Token-efficient web, news, paper and image search plus page/PDF reading"
     },
     {
-      "name": "squeeze",
-      "source": {
-        "source": "github",
-        "repo": "NourEldinShobier/squeeze"
-      },
-      "description": "Shrinks long shell output before Claude reads it; full text saved to a file"
-    },
-    {
       "name": "stash",
       "source": {
         "source": "github",

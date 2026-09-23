@@ -14,7 +14,7 @@ Works on macOS, Linux and Windows.
    ```
 
 2. Restart Claude Code.
-3. Type `/claude-tuning:tune`. Claude installs and configures everything that is missing: Bun, the plugins, codebase-memory, settings and rules.
+3. Type `/claude-tuning:tune`. Claude installs and configures everything that is missing: Bun, the plugins, rtk, codebase-memory, settings and rules.
 4. Restart Claude Code once more.
 
 Done.
@@ -42,14 +42,14 @@ Setting the API keys is the only step you do yourself.
 
 | Part | What it does |
 |---|---|
-| [squeeze](https://github.com/NourEldinShobier/squeeze) (ours) | Shrinks long command output before Claude reads it: 34–76% smaller, every cut marked. The full text is saved to a file. |
+| [rtk](https://github.com/rtk-ai/rtk) | Compresses shell output before Claude reads it: up to 90% less. Installed with its official installer if missing |
 | [stash](https://github.com/NourEldinShobier/stash) (ours) | Keeps big outputs in a local search index; Claude pulls back only what it needs |
 | [web-search](https://github.com/NourEldinShobier/web-search) (ours) | Web research in a fraction of the tokens |
 | [ponytail](https://github.com/DietrichGebert/ponytail) | Keeps code minimal |
 | [i-have-adhd](https://github.com/ayghri/i-have-adhd) | Short answers that lead with the next action |
 | Tool rules in `~/.claude/CLAUDE.md` | Tell Claude when to use the tools above |
 | [codebase-memory](https://github.com/DeusData/codebase-memory-mcp) | Code graph; installed with its official installer if missing |
-| Settings | 700k auto-compact window, the code-graph hooks, and auto-update for claude-tuning, squeeze, stash and web-search |
+| Settings | 700k auto-compact window, the code-graph hooks, and auto-update for claude-tuning, stash and web-search, and the rtk hook |
 
 Your existing settings are kept. Backups: `settings.json.bak`, `CLAUDE.md.bak`.
 
@@ -58,14 +58,13 @@ Your existing settings are kept. Backups: `settings.json.bak`, `CLAUDE.md.bak`.
 Everything still works:
 
 - Skill suggestions and model routing turn off.
-- squeeze uses its rules only.
 - stash ranks results without Jev.
 
 ## Setup options
 
 | Flag | Does |
 |---|---|
-| `--only=squeeze,stash` | Installs only these |
+| `--only=rtk,stash` | Installs only these |
 | `--no-rules` | Leaves your CLAUDE.md alone |
 
 Running setup twice is safe. The second run changes nothing.
@@ -74,9 +73,8 @@ Running setup twice is safe. The second run changes nothing.
 
 | To turn off | Do this |
 |---|---|
-| squeeze for one command | Put `SQUEEZE=0` in the command |
-| squeeze everywhere | Set the environment variable `SQUEEZE=0` |
-| One part | `claude plugin disable squeeze@squeeze` (or `stash@stash`, …) |
+| rtk for one command | Run it as `rtk proxy <command>` |
+| One part | `claude plugin disable stash@stash` (or `web-search@web-search`, …) |
 | All of it | `claude plugin disable claude-tuning@claude-tuning` |
 
 ## Tools we use
@@ -85,27 +83,27 @@ We copy no third-party code. Each tool installs from its own repo at a pinned ve
 
 | Tool | What it does | Reported gain | Licence | How we use it |
 |---|---|---|---|---|
-| [squeeze](https://github.com/NourEldinShobier/squeeze) (ours) | Shrinks long shell output before Claude reads it. The full text is saved to a file. | 34–76% smaller output on real commands (67% overall). On `git log` it keeps more of the commit messages than [rtk](https://github.com/rtk-ai/rtk) (72–100% vs 45–100%). | MIT | Installed by setup; install alone: `squeeze@squeeze` |
+| [rtk](https://github.com/rtk-ai/rtk) | Compresses shell output: git, tests, builds, docker, kubectl, package managers and more | Up to 90% less output | Apache-2.0 | Installed by setup if missing, with its hook |
 | [stash](https://github.com/NourEldinShobier/stash) (ours) | Keeps big outputs, files and pages in a local search index. Claude pulls back only what it needs, ranked by Jev. | 91 KB of git history came back as 9.7 KB (89% less) | MIT | Installed by setup; install alone: `stash@stash` |
 | [web-search](https://github.com/NourEldinShobier/web-search) (ours) | Web search and page reading as compact markdown | ~24x fewer tokens and ~3.5x faster than calling Jina directly | MIT | Installed by setup |
 | [ponytail](https://github.com/DietrichGebert/ponytail) | Makes Claude write the smallest code that works | 54% less code, 22% fewer tokens, 20% cheaper, 27% faster | MIT | Installed by setup |
 | [i-have-adhd](https://github.com/ayghri/i-have-adhd) | Answers lead with the next action: numbered steps, no filler | No published numbers; shorter answers | MIT | Installed by setup |
 | [codebase-memory-mcp](https://github.com/DeusData/codebase-memory-mcp) | Code graph: "where is X defined, who calls X" without reading whole files | 120x fewer tokens (3.4k vs 412k over 5 queries) | MIT | Installed by setup if missing |
 
-Gains for squeeze, stash and web-search are our own measurements. squeeze vs rtk 0.49.0 counts how many of the lines that matter survive, not just size ([full table](https://github.com/NourEldinShobier/squeeze#results)). Gains for the other tools come from their own READMEs and benchmarks. They measure different things, so the numbers don't add up to one total. Pinned versions are in [UPSTREAMS.md](UPSTREAMS.md).
+Gains for stash and web-search are our own measurements. Gains for the other tools come from their own READMEs and benchmarks. They measure different things, so the numbers don't add up to one total. Pinned versions are in [UPSTREAMS.md](UPSTREAMS.md).
 
 **Services:**
 
 | Service | Used by |
 |---|---|
-| [TypeSafe Jev](https://typesafe.ai) | Skill suggestions, model routing, squeeze, stash ranking, web-search planning |
+| [TypeSafe Jev](https://typesafe.ai) | Skill suggestions, model routing, stash ranking, web-search planning |
 | [Jina](https://jina.ai) | web-search (search, page reading, reranking) and stash URL loading |
 
 **Runtime:** [Bun](https://bun.sh) runs everything. Only Bun's built-ins are used: SQLite, fetch and spawn.
 
 More detail, including pinned commits and what we change in each tool: [UPSTREAMS.md](UPSTREAMS.md).
 
-- squeeze, stash and web-search are ours, written from scratch. Each lives in its own repo, so you can install any of them without this bundle.
+- stash and web-search are ours, written from scratch. Each lives in its own repo, so you can install any of them without this bundle.
 - `bun run upstreams` shows which tools have newer releases.
 
 To update one:
@@ -124,7 +122,7 @@ bun test/eval.ts         # live skill-suggestion check (needs TYPESAFE_API_KEY)
 bun test/eval-route.ts   # live model-routing check
 ```
 
-Debug output: set `SKILL_SUGGEST_DEBUG=1`, `ROUTE_MODEL_DEBUG=1` or `SQUEEZE_DEBUG=1`.
+Debug output: set `SKILL_SUGGEST_DEBUG=1` or `ROUTE_MODEL_DEBUG=1`.
 
 ## Credits
 

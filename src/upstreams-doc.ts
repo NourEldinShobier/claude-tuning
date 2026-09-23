@@ -23,7 +23,7 @@ const lines = [
   '',
   '## Ours',
   '',
-  'squeeze, stash and web-search are written by us, from scratch, and live in their own repositories so each can be installed alone. This bundle pins them like any other upstream.',
+  'stash and web-search are written by us, from scratch, and live in their own repositories so each can be installed alone. This bundle pins them like any other upstream.',
   '',
   'Anything written in this repository is ours and MIT-licensed. Where an idea came from someone else, the file that implements it says so.',
   '',

@@ -12,7 +12,7 @@ The user ran this to have everything set up without doing anything themselves. R
 1. **Bun.** Check with `bun --version`. If it is missing, install it with Bun's official installer, then use the full path it prints (a new PATH is not visible to this shell):
    - macOS / Linux: `curl -fsSL https://bun.sh/install | bash` → `~/.bun/bin/bun`
    - Windows: `powershell -NoProfile -ExecutionPolicy Bypass -Command "irm bun.sh/install.ps1 | iex"` → `%USERPROFILE%\.bun\bin\bun.exe`
-2. **Setup.** Run `bun ${CLAUDE_PLUGIN_ROOT}/src/setup.ts --apply`. It installs the pinned plugins (squeeze, stash, web-search, ponytail, i-have-adhd), installs codebase-memory with its official installer if missing, merges the settings and adds the tool rules to `~/.claude/CLAUDE.md`. Running it again changes nothing.
+2. **Setup.** Run `bun ${CLAUDE_PLUGIN_ROOT}/src/setup.ts --apply`. It installs the pinned plugins (stash, web-search, ponytail, i-have-adhd), installs rtk and codebase-memory with their official installers if missing, adds the rtk hook, merges the settings and adds the tool rules to `~/.claude/CLAUDE.md`. Running it again changes nothing.
 3. **Report** in a short table: what was installed or changed, what was already fine, what failed and why.
 4. **API keys** are the only thing setup cannot do. If `JINA_API_KEY` (needed for web search, free at https://jina.ai/?sui=apikey) or `TYPESAFE_API_KEY` (optional, turns on Jev) is not set, say so, give the link, and show the one command that sets it for this OS. Never ask the user to paste a key into the chat.
 5. Tell the user to restart Claude Code: plugins and hooks load at startup.
@@ -22,7 +22,7 @@ The user ran this to have everything set up without doing anything themselves. R
 | Need | Command |
 |---|---|
 | Preview without changing anything | `bun ${CLAUDE_PLUGIN_ROOT}/src/setup.ts` |
-| Only some tools | `bun ${CLAUDE_PLUGIN_ROOT}/src/setup.ts --apply --only=squeeze,stash` |
+| Only some tools | `bun ${CLAUDE_PLUGIN_ROOT}/src/setup.ts --apply --only=rtk,stash` |
 | Leave CLAUDE.md alone | add `--no-rules` |
 | Upstream releases since our pins | `bun ${CLAUDE_PLUGIN_ROOT}/src/check-upstreams.ts` |
 
@@ -38,5 +38,4 @@ Do not copy code from those projects into this repo; install them instead. `UPST
 
 ## Our own parts
 
-- **squeeze** (PostToolUse on Bash/PowerShell) shrinks long output and names the file holding the full text. If something was cut, Read that file, or rerun the command with `SQUEEZE=0` in it.
 - **stash** (MCP server) keeps big outputs in a local index: `stash_run`, `stash_index`, then `stash_search` / `stash_get`.

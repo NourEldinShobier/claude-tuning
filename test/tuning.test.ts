@@ -95,15 +95,16 @@ describe('settings merge', () => {
   test('turns on auto-update for our marketplaces, keeping any existing source', () => {
     const current: Settings = {
       extraKnownMarketplaces: {
-        squeeze: { source: { source: 'directory', path: 'D:/dev/squeeze' } },
+        stash: { source: { source: 'directory', path: 'D:/dev/stash' } },
         ponytail: { source: { source: 'github', repo: 'DietrichGebert/ponytail' } },
       },
     };
     const { next } = merge(current, want);
     const m = next.extraKnownMarketplaces as Record<string, { source: { source: string; path?: string; repo?: string }; autoUpdate?: boolean }>;
-    for (const name of ['claude-tuning', 'squeeze', 'stash', 'web-search']) expect(m[name]!.autoUpdate).toBe(true);
-    expect(m.squeeze!.source).toEqual({ source: 'directory', path: 'D:/dev/squeeze' });
-    expect(m.stash!.source).toEqual({ source: 'github', repo: 'NourEldinShobier/stash' });
+    for (const name of ['claude-tuning', 'stash', 'web-search']) expect(m[name]!.autoUpdate).toBe(true);
+    expect(m.stash!.source).toEqual({ source: 'directory', path: 'D:/dev/stash' });
+    expect(m['web-search']!.source).toEqual({ source: 'github', repo: 'NourEldinShobier/web-search' });
+    expect(m.squeeze).toBeUndefined();
     expect(m.ponytail!.autoUpdate).toBeUndefined(); // third-party stays pinned
     expect(merge(next, want).changes).toEqual([]);
   });
@@ -133,18 +134,27 @@ describe('upstreams', () => {
     for (const p of paths) expect(existsSync(p)).toBe(true);
   });
 
-  test('squeeze and stash are installed from their own repos; rtk and context-mode are gone', () => {
+  test('rtk compresses shell output; stash is installed from its own repo; squeeze and context-mode are gone', () => {
     const ids = UPSTREAMS.map((u) => u.id);
-    expect(ids).toContain('squeeze');
+    expect(ids).toContain('rtk');
     expect(ids).toContain('stash');
-    expect(ids).not.toContain('rtk');
+    expect(ids).not.toContain('squeeze');
     expect(ids).not.toContain('context-mode');
+  });
+
+  test('the rtk hook is added only when rtk is installed, by the path setup found', () => {
+    expect(desired({ codebaseMemory: false }).hooks?.PreToolUse).toBeUndefined();
+    const pre = desired({ codebaseMemory: false, rtk: 'C:/Users/x/.local/bin/rtk.exe' }).hooks!.PreToolUse!;
+    expect(pre[0]).toEqual({ matcher: 'Bash|PowerShell', hooks: [{ type: 'command', command: 'C:/Users/x/.local/bin/rtk.exe hook claude' }] });
+    // An existing bare `rtk hook claude` counts as the same hook.
+    expect(merge({ hooks: { PreToolUse: [{ matcher: 'Bash|PowerShell', hooks: [{ type: 'command', command: 'rtk hook claude' }] }] } }, { hooks: { PreToolUse: pre } }).changes).toEqual([]);
   });
 
   test('the marketplace lists every plugin of ours that setup installs', async () => {
     const { readFileSync } = await import('node:fs');
     const listed = JSON.parse(readFileSync('.claude-plugin/marketplace.json', 'utf8')).plugins.map((p: { name: string }) => p.name);
-    for (const id of ['squeeze', 'stash', 'web-search']) expect(listed).toContain(id);
+    for (const id of ['stash', 'web-search']) expect(listed).toContain(id);
+    expect(listed).not.toContain('squeeze');
   });
 
   test('no third-party code is vendored: only our own src/, skills/ and hooks/', async () => {
