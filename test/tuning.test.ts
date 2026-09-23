@@ -92,6 +92,22 @@ describe('settings merge', () => {
     expect(withRules('', 'x')).toBe('<!-- claude-tuning:start -->\nx\n<!-- claude-tuning:end -->\n');
   });
 
+  test('turns on auto-update for our marketplaces, keeping any existing source', () => {
+    const current: Settings = {
+      extraKnownMarketplaces: {
+        squeeze: { source: { source: 'directory', path: 'D:/dev/squeeze' } },
+        ponytail: { source: { source: 'github', repo: 'DietrichGebert/ponytail' } },
+      },
+    };
+    const { next } = merge(current, want);
+    const m = next.extraKnownMarketplaces as Record<string, { source: { source: string; path?: string; repo?: string }; autoUpdate?: boolean }>;
+    for (const name of ['claude-tuning', 'squeeze', 'stash', 'web-search']) expect(m[name]!.autoUpdate).toBe(true);
+    expect(m.squeeze!.source).toEqual({ source: 'directory', path: 'D:/dev/squeeze' });
+    expect(m.stash!.source).toEqual({ source: 'github', repo: 'NourEldinShobier/stash' });
+    expect(m.ponytail!.autoUpdate).toBeUndefined(); // third-party stays pinned
+    expect(merge(next, want).changes).toEqual([]);
+  });
+
   test('hooks for a tool that is not installed are not written', () => {
     expect(Object.keys(desired({ codebaseMemory: false }).hooks ?? {})).toEqual([]);
   });

@@ -35,9 +35,9 @@ export const UPSTREAMS: Upstream[] = [
     kind: 'plugin',
     marketplace: 'squeeze',
     plugin: 'squeeze',
-    version: '0.1.0',
-    commit: '6b79559b8684',
-    why: 'Shrinks long Bash and PowerShell output before Claude reads it; the full text is saved to a file. 79–93% smaller on real commands.',
+    version: '0.2.0',
+    commit: 'e603c6c4d2e6',
+    why: 'Shrinks long Bash and PowerShell output before Claude reads it; the full text is saved to a file. 34–76% smaller on real commands, every cut marked.',
     ours: 'Ours. Separate repo so it can be installed alone.',
   },
   {

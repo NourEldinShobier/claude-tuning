@@ -42,14 +42,14 @@ Setting the API keys is the only step you do yourself.
 
 | Part | What it does |
 |---|---|
-| [squeeze](https://github.com/NourEldinShobier/squeeze) (ours) | Shrinks long command output before Claude reads it: 79–93% smaller. The full text is saved to a file. |
+| [squeeze](https://github.com/NourEldinShobier/squeeze) (ours) | Shrinks long command output before Claude reads it: 34–76% smaller, every cut marked. The full text is saved to a file. |
 | [stash](https://github.com/NourEldinShobier/stash) (ours) | Keeps big outputs in a local search index; Claude pulls back only what it needs |
 | [web-search](https://github.com/NourEldinShobier/web-search) (ours) | Web research in a fraction of the tokens |
 | [ponytail](https://github.com/DietrichGebert/ponytail) | Keeps code minimal |
 | [i-have-adhd](https://github.com/ayghri/i-have-adhd) | Short answers that lead with the next action |
 | Tool rules in `~/.claude/CLAUDE.md` | Tell Claude when to use the tools above |
 | [codebase-memory](https://github.com/DeusData/codebase-memory-mcp) | Code graph; installed with its official installer if missing |
-| Settings | 700k auto-compact window and the code-graph hooks |
+| Settings | 700k auto-compact window, the code-graph hooks, and auto-update for claude-tuning, squeeze, stash and web-search |
 
 Your existing settings are kept. Backups: `settings.json.bak`, `CLAUDE.md.bak`.
 
@@ -85,14 +85,14 @@ We copy no third-party code. Each tool installs from its own repo at a pinned ve
 
 | Tool | What it does | Reported gain | Licence | How we use it |
 |---|---|---|---|---|
-| [squeeze](https://github.com/NourEldinShobier/squeeze) (ours) | Shrinks long shell output before Claude reads it. The full text is saved to a file. | 79–93% smaller output on real commands. On git log and diff it returned 1.6–3.6x less than [rtk](https://github.com/rtk-ai/rtk). | MIT | Installed by setup; install alone: `squeeze@squeeze` |
+| [squeeze](https://github.com/NourEldinShobier/squeeze) (ours) | Shrinks long shell output before Claude reads it. The full text is saved to a file. | 34–76% smaller output on real commands (67% overall). On `git log` it keeps more of the commit messages than [rtk](https://github.com/rtk-ai/rtk) (72–100% vs 45–100%). | MIT | Installed by setup; install alone: `squeeze@squeeze` |
 | [stash](https://github.com/NourEldinShobier/stash) (ours) | Keeps big outputs, files and pages in a local search index. Claude pulls back only what it needs, ranked by Jev. | 91 KB of git history came back as 9.7 KB (89% less) | MIT | Installed by setup; install alone: `stash@stash` |
 | [web-search](https://github.com/NourEldinShobier/web-search) (ours) | Web search and page reading as compact markdown | ~24x fewer tokens and ~3.5x faster than calling Jina directly | MIT | Installed by setup |
 | [ponytail](https://github.com/DietrichGebert/ponytail) | Makes Claude write the smallest code that works | 54% less code, 22% fewer tokens, 20% cheaper, 27% faster | MIT | Installed by setup |
 | [i-have-adhd](https://github.com/ayghri/i-have-adhd) | Answers lead with the next action: numbered steps, no filler | No published numbers; shorter answers | MIT | Installed by setup |
 | [codebase-memory-mcp](https://github.com/DeusData/codebase-memory-mcp) | Code graph: "where is X defined, who calls X" without reading whole files | 120x fewer tokens (3.4k vs 412k over 5 queries) | MIT | Installed by setup if missing |
 
-Gains for squeeze, stash and web-search are our own measurements. squeeze vs rtk: six git commands in two repos, rtk 0.10.0, run 2026-09-22. rtk came out smaller on one `bun test` run, where it printed only a short summary. Gains for the other tools come from their own READMEs and benchmarks. They measure different things, so the numbers don't add up to one total. Pinned versions are in [UPSTREAMS.md](UPSTREAMS.md).
+Gains for squeeze, stash and web-search are our own measurements. squeeze vs rtk 0.49.0 counts how many of the lines that matter survive, not just size ([full table](https://github.com/NourEldinShobier/squeeze#results)). Gains for the other tools come from their own READMEs and benchmarks. They measure different things, so the numbers don't add up to one total. Pinned versions are in [UPSTREAMS.md](UPSTREAMS.md).
 
 **Services:**
 

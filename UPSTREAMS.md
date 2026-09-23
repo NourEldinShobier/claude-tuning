@@ -6,7 +6,7 @@ Generated from `src/upstreams.ts` by `bun run upstreams:doc`. Check for newer re
 
 | Tool | Source | Licence | Pinned | What it does | What claude-tuning changes |
 |---|---|---|---|---|---|
-| squeeze | [NourEldinShobier/squeeze](https://github.com/NourEldinShobier/squeeze) | MIT | 0.1.0 (`6b79559`) | Shrinks long Bash and PowerShell output before Claude reads it; the full text is saved to a file. 79–93% smaller on real commands. | Ours. Separate repo so it can be installed alone. |
+| squeeze | [NourEldinShobier/squeeze](https://github.com/NourEldinShobier/squeeze) | MIT | 0.2.0 (`e603c6c`) | Shrinks long Bash and PowerShell output before Claude reads it; the full text is saved to a file. 34–76% smaller on real commands, every cut marked. | Ours. Separate repo so it can be installed alone. |
 | stash | [NourEldinShobier/stash](https://github.com/NourEldinShobier/stash) | MIT | 0.1.0 (`8d789af`) | MCP server that keeps big outputs, files and pages in a local search index and returns only what Claude asks for, ranked by Jev. | Ours. Separate repo so it can be installed alone. |
 | web-search | [NourEldinShobier/web-search](https://github.com/NourEldinShobier/web-search) | MIT | 0.6.2 | Web, news, paper and image search plus page/PDF reading, trimmed for agents. Replaces WebSearch/WebFetch. | Ours. Separate repo so it is useful without this bundle. |
 | ponytail | [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) | MIT | 4.10.0 (`e3ba2aa`) | Pushes the agent to the simplest solution that works, and to reuse what the repo already has. | Its per-subagent rules are turned off for the web-search researcher (PONYTAIL_SUBAGENT_MATCHER), which saves about 1.4k tokens per research agent. |

@@ -26,8 +26,17 @@ export function desired(has: { codebaseMemory: boolean }): Settings {
     hooks.PostToolUse = [cbm('Read')];
     hooks.SubagentStart = [cbm('*')];
   }
-  return { env, hooks, autoCompactWindow: 700_000 };
+  // Our own plugins keep themselves current: Claude Code refreshes these marketplaces after launch and updates their plugins.
+  const extraKnownMarketplaces = Object.fromEntries(
+    OUR_MARKETPLACES.map((repo) => [repo.split('/')[1]!, { source: { source: 'github', repo }, autoUpdate: true }]),
+  );
+  return { env, hooks, autoCompactWindow: 700_000, extraKnownMarketplaces };
 }
+
+/** Marketplaces we publish; setup turns on auto-update for them. Third-party ones stay on their pinned versions. */
+export const OUR_MARKETPLACES = ['NourEldinShobier/claude-tuning', 'NourEldinShobier/squeeze', 'NourEldinShobier/stash', 'NourEldinShobier/web-search'];
+
+type Marketplace = { source?: unknown; autoUpdate?: boolean; [k: string]: unknown };
 
 type Entry = { matcher?: string; hooks?: { command?: string; args?: string[] }[] };
 
@@ -57,6 +66,19 @@ export function merge(current: Settings, want: Settings): { next: Settings; chan
     if (next.env[k] === v) continue;
     changes.push(`env.${k}: ${next.env[k] === undefined ? 'unset' : next.env[k]} -> ${v}`);
     next.env[k] = v;
+  }
+
+  const wantMarkets = (want.extraKnownMarketplaces ?? {}) as Record<string, Marketplace>;
+  if (Object.keys(wantMarkets).length) {
+    const markets = { ...((current.extraKnownMarketplaces ?? {}) as Record<string, Marketplace>) };
+    for (const [name, m] of Object.entries(wantMarkets)) {
+      const have = markets[name];
+      if (have?.autoUpdate === true) continue;
+      // Keep an existing source (a local checkout, a fork); only switch auto-update on.
+      markets[name] = have ? { ...have, autoUpdate: true } : m;
+      changes.push(`extraKnownMarketplaces.${name}.autoUpdate: ${have ? (have.autoUpdate ?? 'unset') : 'new'} -> true`);
+    }
+    next.extraKnownMarketplaces = markets;
   }
 
   if (want.autoCompactWindow && current.autoCompactWindow !== want.autoCompactWindow) {
