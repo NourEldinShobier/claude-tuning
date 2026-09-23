@@ -59,7 +59,7 @@ export const UPSTREAMS: Upstream[] = [
     kind: 'plugin',
     marketplace: 'web-search',
     plugin: 'web-search',
-    version: '0.6.1',
+    version: '0.6.2',
     why: 'Web, news, paper and image search plus page/PDF reading, trimmed for agents. Replaces WebSearch/WebFetch.',
     ours: 'Ours. Separate repo so it is useful without this bundle.',
   },
