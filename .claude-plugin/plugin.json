@@ -1,6 +1,6 @@
 {
   "name": "claude-tuning",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "Claude Code uses fewer tokens and answers faster: rtk (compresses shell output), stash (search index for big output), Jev skill suggestions and model routing, plus a one-command setup.",
   "author": {
     "name": "Nour Eldin Shobier"

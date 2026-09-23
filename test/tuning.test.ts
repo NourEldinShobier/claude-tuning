@@ -68,6 +68,7 @@ describe('settings merge', () => {
     expect(next.model).toBe('opus');
     expect(next.env!.FOO).toBe('bar');
     expect(next.env!.PONYTAIL_SUBAGENT_MATCHER).toBeDefined();
+    expect(next.env!.CLAUDE_CODE_ENABLE_FUNCTION_HOOKS).toBe('1'); // fast-jev-compaction needs it
     expect(next.env!.CLAUDE_CODE_SUBAGENT_MODEL).toBeUndefined(); // subagent limits are personal, not ours to set
     expect(next.hooks!.PreToolUse).toEqual(current.hooks!.PreToolUse);
     expect(changes.length).toBeGreaterThan(0);
@@ -121,7 +122,7 @@ describe('upstreams', () => {
       expect(u.license.length).toBeGreaterThan(0);
       expect(u.version).toMatch(/^\d+\.\d+/);
       if (u.kind === 'plugin') expect(`${u.plugin}@${u.marketplace}`).not.toContain('undefined');
-      else expect(Object.keys(u.install ?? {})).toEqual(['darwin', 'linux', 'win32']);
+      else expect(Object.keys(u.install ?? {}).length).toBeGreaterThan(0);
     }
     expect(plugins().map((u) => u.id)).toContain('ponytail');
     expect(UPSTREAMS.some((u) => u.id === 'context7')).toBe(false);
@@ -172,18 +173,29 @@ describe('upstreams', () => {
   });
 });
 
-import { binPaths, hasBin, shellFor } from '../src/setup';
+import { binPaths, hasBin, isInstalled, shellFor, versionOf } from '../src/setup';
 import { tools } from '../src/upstreams';
 
 describe('tool install', () => {
-  test('every tool has a binary name and an official installer for each platform', () => {
+  test('every tool can be detected, and runs on every platform unless it is macOS-only', () => {
     for (const u of tools()) {
-      expect(u.bin).toBeTruthy();
-      expect(Object.keys(u.install ?? {})).toEqual(['darwin', 'linux', 'win32']);
-      // The Windows installer goes to %TEMP%, never into the folder setup runs in.
-      expect(u.install!.win32).toContain('$env:TEMP');
-      expect(u.install!.win32).not.toContain('.\\install.ps1');
+      expect(Boolean(u.bin || u.path || u.kind === 'mcp')).toBe(true);
+      const platforms = Object.keys(u.install ?? {});
+      expect(platforms).toEqual(u.id === 'agent-desktop' ? ['darwin'] : ['darwin', 'linux', 'win32']);
+      // A Windows installer that downloads a file puts it in %TEMP%, never in the folder setup runs in.
+      if (u.install!.win32?.includes('-OutFile')) expect(u.install!.win32).toContain('$env:TEMP');
+      expect(u.install!.win32 ?? '').not.toContain('.\\install.ps1');
     }
+  });
+
+  test('an MCP server with no binary counts as installed only once registered', async () => {
+    expect(await isInstalled({ id: 'no-such-server-claude-tuning', repo: 'a/b', license: 'MIT', kind: 'mcp', version: '1.0', why: '' })).toBe(false);
+    expect(await isInstalled({ id: 'x', repo: 'a/b', license: 'MIT', kind: 'cli', version: '1.0', why: '', path: 'no/such/file' })).toBe(false);
+  });
+
+  test('version parsing reads X.Y.Z; a missing command is [0]', async () => {
+    expect((await versionOf(['bun', '--version'])).length).toBe(3);
+    expect(await versionOf(['no-such-tool-claude-tuning'])).toEqual([0]);
   });
 
   test('installers run through the platform shell', () => {

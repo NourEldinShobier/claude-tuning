@@ -12,10 +12,11 @@ The user ran this to have everything set up without doing anything themselves. R
 1. **Bun.** Check with `bun --version`. If it is missing, install it with Bun's official installer, then use the full path it prints (a new PATH is not visible to this shell):
    - macOS / Linux: `curl -fsSL https://bun.sh/install | bash` → `~/.bun/bin/bun`
    - Windows: `powershell -NoProfile -ExecutionPolicy Bypass -Command "irm bun.sh/install.ps1 | iex"` → `%USERPROFILE%\.bun\bin\bun.exe`
-2. **Setup.** Run `bun ${CLAUDE_PLUGIN_ROOT}/src/setup.ts --apply`. It installs the pinned plugins (stash, web-search, ponytail, i-have-adhd), installs rtk and codebase-memory with their official installers if missing, adds the rtk hook, merges the settings and adds the tool rules to `~/.claude/CLAUDE.md`. Running it again changes nothing.
+2. **Setup.** Run `bun ${CLAUDE_PLUGIN_ROOT}/src/setup.ts --apply`. It installs the pinned plugins (stash, web-search, ponytail, i-have-adhd, fast-jev-compaction), installs rtk, codebase-memory, jev-browser, Canny and (macOS only) agent-desktop with their official installers if missing, adds the rtk hook, merges the settings and adds the tool rules to `~/.claude/CLAUDE.md`. Running it again changes nothing.
 3. **Report** in a short table: what was installed or changed, what was already fine, what failed and why.
 4. **API keys** are the only thing setup cannot do. If `JINA_API_KEY` (needed for web search, free at https://jina.ai/?sui=apikey) or `TYPESAFE_API_KEY` (optional, turns on Jev) is not set, say so, give the link, and show the one command that sets it for this OS. Never ask the user to paste a key into the chat.
-5. Tell the user to restart Claude Code: plugins and hooks load at startup.
+5. If setup printed a note about Claude Code's version or a missing Node 22, pass it on with the one command that fixes it (`claude update`, or the Node installer link).
+6. Tell the user to restart Claude Code: plugins and hooks load at startup.
 
 ## Other commands
 

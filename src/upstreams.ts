@@ -4,6 +4,8 @@
  * updates stay with its author. `bun run upstreams` reports newer releases (src/check-upstreams.ts).
  */
 
+export type Platform = 'darwin' | 'linux' | 'win32';
+
 export interface Upstream {
   /** Short id used in reports and flags. */
   id: string;
@@ -21,10 +23,13 @@ export interface Upstream {
   why: string;
   /** What claude-tuning changes about it, if anything. */
   ours?: string;
-  /** The tool's official install command per platform, for `kind: 'cli' | 'mcp'`; setup runs it when the tool is missing. */
-  install?: { darwin: string; linux: string; win32: string };
-  /** Executable name, to check whether the tool is installed. */
+  /** The tool's official install command per platform, for `kind: 'cli' | 'mcp'`; setup runs it when the tool is missing. A platform left out is not supported. */
+  install?: Partial<Record<Platform, string>>;
+  /** How setup tells the tool is installed: an executable name, or a file under the home folder. Without either, an MCP server registered under `id`. */
   bin?: string;
+  path?: string;
+  /** Oldest Node.js major version the tool runs on. */
+  node?: number;
 }
 
 export const UPSTREAMS: Upstream[] = [
@@ -76,6 +81,18 @@ export const UPSTREAMS: Upstream[] = [
     why: 'Answers lead with the next action, numbered steps, no preamble. Shorter output is also cheaper output.',
   },
   {
+    id: 'fast-jev-compaction',
+    repo: 'tamaratran/fast-jev-compaction',
+    license: 'MIT',
+    kind: 'plugin',
+    marketplace: 'fast-jev-compaction',
+    plugin: 'fast-jev-compaction',
+    version: '0.3.0',
+    commit: 'e3f262a7f4d4',
+    why: "Replaces Claude Code's summarising compaction: Jev picks which messages to keep, and kept messages stay word for word. Needs Claude Code 2.1.274+ and TYPESAFE_API_KEY; without them the built-in compaction runs.",
+    ours: 'Setup turns on function hooks (CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1), which it needs.',
+  },
+  {
     id: 'rtk',
     repo: 'rtk-ai/rtk',
     license: 'Apache-2.0',
@@ -104,6 +121,55 @@ export const UPSTREAMS: Upstream[] = [
       win32: "$f = Join-Path $env:TEMP 'cbm-install.ps1'; irm https://raw.githubusercontent.com/DeusData/codebase-memory-mcp/main/install.ps1 -OutFile $f; Unblock-File $f; & $f",
     },
     bin: 'codebase-memory-mcp',
+  },
+  {
+    id: 'jev-browser',
+    repo: 'jkudish/jev-browser',
+    license: 'MIT',
+    kind: 'mcp',
+    version: '0.4.1',
+    commit: 'f2b13a05890c',
+    why: 'Multi-step browser tasks in headless Chromium, with Jev choosing each action: a few cents of Jev instead of Claude reading every page. Needs TYPESAFE_API_KEY.',
+    ours: 'Setup registers its MCP server for all projects (user scope).',
+    install: {
+      darwin: 'claude mcp add -s user jev-browser -- npx -y @jkudish/jev-browser@0.4.1',
+      linux: 'claude mcp add -s user jev-browser -- npx -y @jkudish/jev-browser@0.4.1',
+      // Claude Code on Windows can only start npx through cmd.
+      win32: 'claude mcp add -s user jev-browser -- cmd /c npx -y @jkudish/jev-browser@0.4.1',
+    },
+    node: 22,
+  },
+  {
+    id: 'canny',
+    repo: 'qkal/canny',
+    license: 'MIT',
+    kind: 'cli',
+    version: '0.3.0',
+    commit: 'f2c5e5377944',
+    why: 'Hooks that block "done" until a real check (tests, typecheck, lint) has passed since the last edit, so Claude does not stop on unverified work.',
+    ours: 'Setup follows its install: clone to ~/.canny/src, then `init --global --claude` writes its hooks into ~/.claude/settings.json.',
+    install: {
+      darwin: 'git clone -q https://github.com/qkal/canny.git ~/.canny/src && node ~/.canny/src/dist/cli.js init --global --claude',
+      linux: 'git clone -q https://github.com/qkal/canny.git ~/.canny/src && node ~/.canny/src/dist/cli.js init --global --claude',
+      win32: "$d = Join-Path $HOME '.canny\\src'; git clone -q https://github.com/qkal/canny.git $d; if ($LASTEXITCODE -eq 0) { node (Join-Path $d 'dist\\cli.js') init --global --claude }",
+    },
+    path: '.canny/src/dist/cli.js',
+    node: 22,
+  },
+  {
+    id: 'agent-desktop',
+    repo: 'lahfir/agent-desktop',
+    license: 'Apache-2.0',
+    kind: 'cli',
+    version: '0.9.4',
+    commit: 'a4a695fdd1f6',
+    why: 'Drives native macOS apps through the accessibility tree: compact element refs instead of screenshots. macOS only.',
+    ours: 'Setup installs the CLI from npm and its agent-desktop and jev-desktop skills into ~/.claude/skills.',
+    install: {
+      darwin:
+        'npm install -g agent-desktop@0.9.4 && d=$(mktemp -d) && git clone -q --depth 1 --branch v0.9.4 https://github.com/lahfir/agent-desktop "$d" && mkdir -p ~/.claude/skills && cp -R "$d/skills/agent-desktop" "$d/skills/jev-desktop" ~/.claude/skills/ && rm -rf "$d"',
+    },
+    bin: 'agent-desktop',
   },
 ];
 

@@ -6,7 +6,7 @@
  * settings in src/settings.ts into ~/.claude/settings.json (existing values are kept, a .bak is written).
  * Missing tools (codebase-memory-mcp) are installed with their project's own official installer.
  */
-import { plugins, tools, UPSTREAMS } from './upstreams';
+import { plugins, tools, UPSTREAMS, type Platform, type Upstream } from './upstreams';
 import { copyFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
@@ -49,6 +49,26 @@ export async function hasBin(bin: string): Promise<boolean> {
   return false;
 }
 
+/** Claude Code's config file, where `claude mcp add -s user` registers servers. */
+const claudeJson = () => (process.env.CLAUDE_CONFIG_DIR ? join(process.env.CLAUDE_CONFIG_DIR, '.claude.json') : join(homedir(), '.claude.json'));
+
+/** Installed: its executable runs, its file exists, or (MCP servers with neither) it is registered in Claude Code. */
+export async function isInstalled(u: Upstream): Promise<boolean> {
+  if (u.bin) return hasBin(u.bin);
+  if (u.path) return existsSync(join(homedir(), u.path));
+  try {
+    return Boolean(JSON.parse(readFileSync(claudeJson(), 'utf8')).mcpServers?.[u.id]);
+  } catch {
+    return false;
+  }
+}
+
+/** [major, minor, patch] of the first X.Y.Z a command prints; [0] when the command is missing. */
+export async function versionOf(cmd: string[]): Promise<number[]> {
+  const { ok, output } = await run(cmd);
+  return ok ? (output.match(/(\d+)\.(\d+)\.(\d+)/)?.slice(1).map(Number) ?? [0]) : [0];
+}
+
 /** The shell that runs an install command on this platform. */
 export const shellFor = (command: string, platform: string = process.platform): string[] =>
   platform === 'win32' ? ['powershell', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', command] : ['bash', '-c', command];
@@ -66,7 +86,12 @@ export async function runInstaller(command: string): Promise<{ ok: boolean; outp
 }
 
 async function run(cmd: string[]): Promise<{ ok: boolean; output: string }> {
-  const p = Bun.spawn(cmd, { stdout: 'pipe', stderr: 'pipe' });
+  let p;
+  try {
+    p = Bun.spawn(cmd, { stdout: 'pipe', stderr: 'pipe' });
+  } catch {
+    return { ok: false, output: `${cmd[0]} not found` };
+  }
   const [stdout, stderr] = await Promise.all([new Response(p.stdout).text(), new Response(p.stderr).text()]);
   return { ok: (await p.exited) === 0, output: `${stdout}${stderr}`.trim() };
 }
@@ -85,7 +110,7 @@ export async function installed(): Promise<Set<string>> {
 }
 
 async function main() {
-  const platform = process.platform as 'darwin' | 'linux' | 'win32';
+  const platform = process.platform as Platform;
   out(bold('claude-tuning setup'));
   out(APPLY ? 'Applying changes.\n' : 'Plan only. Re-run with --apply to make these changes.\n');
 
@@ -96,6 +121,10 @@ async function main() {
   out(`  bun      ${bunOk ? 'ok' : 'missing'}`);
   out(`  claude   ${claudeOk ? 'ok' : 'missing — install Claude Code first: https://claude.com/claude-code'}`);
   if (!claudeOk) process.exit(1);
+  const [cMaj = 0, cMin = 0, cPatch = 0] = await versionOf(['claude', '--version']);
+  if (cMaj * 1e6 + cMin * 1e3 + cPatch < 2_001_274) out('  note     fast-jev-compaction needs Claude Code 2.1.274 or newer; run `claude update`. Until then the built-in compaction runs.');
+  const [nodeMajor = 0] = await versionOf(['node', '--version']);
+  out(`  node     ${nodeMajor ? `${nodeMajor} ok` : 'missing — jev-browser and canny need Node 22+ (https://nodejs.org)'}`);
 
   // 2. Plugins, each from its own repo at the pinned version.
   const already = await installed();
@@ -104,33 +133,42 @@ async function main() {
     if (!wanted(u)) continue;
     const id = `${u.plugin}@${u.marketplace}`;
     if (already.has(id)) {
-      out(`  ${u.id.padEnd(16)} already installed`);
+      out(`  ${u.id.padEnd(20)} already installed`);
       continue;
     }
     if (!APPLY) {
-      out(`  ${u.id.padEnd(16)} would install ${id} (${u.repo}, pinned ${u.version}, ${u.license})`);
+      out(`  ${u.id.padEnd(20)} would install ${id} (${u.repo}, pinned ${u.version}, ${u.license})`);
       continue;
     }
     const add = await run(['claude', 'plugin', 'marketplace', 'add', u.repo]);
     const install = await run(['claude', 'plugin', 'install', id]);
-    out(`  ${u.id.padEnd(16)} ${install.ok ? 'installed' : `failed: ${(install.output || add.output).split('\n').pop()}`}`);
+    out(`  ${u.id.padEnd(20)} ${install.ok ? 'installed' : `failed: ${(install.output || add.output).split('\n').pop()}`}`);
   }
 
   // 3. Tools, installed with their own official installer when missing.
   out(`\n${bold('Tools')}`);
   for (const u of tools()) {
-    if (!wanted(u) || !u.bin || !u.install) continue;
-    if (await hasBin(u.bin)) {
-      out(`  ${u.id.padEnd(16)} already installed`);
+    if (!wanted(u)) continue;
+    const cmd = u.install?.[platform];
+    if (!cmd) {
+      out(`  ${u.id.padEnd(20)} skipped: not available on ${platform}`);
+      continue;
+    }
+    if (await isInstalled(u)) {
+      out(`  ${u.id.padEnd(20)} already installed`);
+      continue;
+    }
+    if (u.node && nodeMajor < u.node) {
+      out(`  ${u.id.padEnd(20)} skipped: needs Node ${u.node}+${nodeMajor ? `, found ${nodeMajor}` : ''}`);
       continue;
     }
     if (!APPLY) {
-      out(`  ${u.id.padEnd(16)} would install with its official installer (${u.repo})`);
+      out(`  ${u.id.padEnd(20)} would install with its official installer (${u.repo})`);
       continue;
     }
-    const r = await runInstaller(u.install[platform]);
-    const ok = await hasBin(u.bin);
-    out(`  ${u.id.padEnd(16)} ${ok ? 'installed' : `install failed: ${r.output.split('\n').filter(Boolean).pop() ?? 'no output'}`}`);
+    const r = await runInstaller(cmd);
+    const ok = await isInstalled(u);
+    out(`  ${u.id.padEnd(20)} ${ok ? 'installed' : `install failed: ${r.output.split('\n').filter(Boolean).pop() ?? 'no output'}`}`);
   }
 
   // 4. Settings, merged.
@@ -152,7 +190,7 @@ async function main() {
   out(`\n${bold('CLAUDE.md')} (${mdPath})`);
   if (process.argv.includes('--no-rules')) out('  skipped (--no-rules)');
   else if (mdNext === md) out('  tool rules already current');
-  else if (!APPLY) out('  would add the tool rules block (web-search, rtk, stash, ponytail, code graph)');
+  else if (!APPLY) out('  would add the tool rules block');
   else {
     if (md) copyFileSync(mdPath, `${mdPath}.bak`);
     writeFileSync(mdPath, mdNext);
@@ -162,7 +200,7 @@ async function main() {
   // 6. Keys, presence only.
   out(`\n${bold('API keys')}`);
   out(`  JINA_API_KEY      ${process.env.JINA_API_KEY ? 'set' : 'not set — web search needs it (free: https://jina.ai/?sui=apikey)'}`);
-  out(`  TYPESAFE_API_KEY  ${process.env.TYPESAFE_API_KEY ? 'set' : 'not set — optional; enables Jev skill suggestions, model routing and source picking'}`);
+  out(`  TYPESAFE_API_KEY  ${process.env.TYPESAFE_API_KEY ? 'set' : 'not set — optional; turns on the Jev parts: skill suggestions, model routing, compaction, jev-browser, ranking'}`);
 
   out(`\n${UPSTREAMS.length} upstreams pinned; see UPSTREAMS.md. Restart Claude Code when this finishes.`);
   if (!APPLY) out('Nothing was changed. Run: bun run setup --apply');

@@ -17,6 +17,8 @@ export function desired(has: { codebaseMemory: boolean; rtk?: string }): Setting
   const env: Record<string, string> = {
     // web-search's researcher agent gets no ponytail rules: it writes no code, and they cost ~1.4k tokens.
     PONYTAIL_SUBAGENT_MATCHER: '^(?!web-search:web-researcher$)',
+    // fast-jev-compaction runs as a function hook, an early-access feature behind this flag.
+    CLAUDE_CODE_ENABLE_FUNCTION_HOOKS: '1',
   };
   const hooks: Settings['hooks'] = {};
   // rtk rewrites Bash/PowerShell commands to its compressed form. `has.rtk` is the binary's path (absolute when found outside PATH).
