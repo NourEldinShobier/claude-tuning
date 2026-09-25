@@ -185,20 +185,19 @@ import { binPaths, hasBin, isInstalled, shellFor, versionOf } from '../src/setup
 import { tools } from '../src/upstreams';
 
 describe('tool install', () => {
-  test('every tool can be detected, and runs on every platform unless it is macOS-only', () => {
+  test('every tool can be detected and installs on every platform', () => {
     for (const u of tools()) {
-      expect(Boolean(u.bin || u.path || u.kind === 'mcp')).toBe(true);
+      expect(u.bin).toBeTruthy();
       const platforms = Object.keys(u.install ?? {});
-      expect(platforms).toEqual(u.id === 'agent-desktop' ? ['darwin'] : ['darwin', 'linux', 'win32']);
+      expect(platforms).toEqual(['darwin', 'linux', 'win32']);
       // A Windows installer that downloads a file puts it in %TEMP%, never in the folder setup runs in.
       if (u.install!.win32?.includes('-OutFile')) expect(u.install!.win32).toContain('$env:TEMP');
       expect(u.install!.win32 ?? '').not.toContain('.\\install.ps1');
     }
   });
 
-  test('an MCP server with no binary counts as installed only once registered', async () => {
-    expect(await isInstalled({ id: 'no-such-server-claude-tuning', repo: 'a/b', license: 'MIT', kind: 'mcp', version: '1.0', why: '' })).toBe(false);
-    expect(await isInstalled({ id: 'x', repo: 'a/b', license: 'MIT', kind: 'cli', version: '1.0', why: '', path: 'no/such/file' })).toBe(false);
+  test('a tool counts as installed only when its binary runs', async () => {
+    expect(await isInstalled({ id: 'x', repo: 'a/b', license: 'MIT', kind: 'cli', version: '1.0', why: '', bin: 'no-such-tool-claude-tuning' })).toBe(false);
   });
 
   test('version parsing reads X.Y.Z; a missing command is [0]', async () => {

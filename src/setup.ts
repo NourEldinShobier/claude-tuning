@@ -49,19 +49,7 @@ export async function hasBin(bin: string): Promise<boolean> {
   return false;
 }
 
-/** Claude Code's config file, where `claude mcp add -s user` registers servers. */
-const claudeJson = () => (process.env.CLAUDE_CONFIG_DIR ? join(process.env.CLAUDE_CONFIG_DIR, '.claude.json') : join(homedir(), '.claude.json'));
-
-/** Installed: its executable runs, its file exists, or (MCP servers with neither) it is registered in Claude Code. */
-export async function isInstalled(u: Upstream): Promise<boolean> {
-  if (u.bin) return hasBin(u.bin);
-  if (u.path) return existsSync(join(homedir(), u.path));
-  try {
-    return Boolean(JSON.parse(readFileSync(claudeJson(), 'utf8')).mcpServers?.[u.id]);
-  } catch {
-    return false;
-  }
-}
+export const isInstalled = (u: Upstream) => hasBin(u.bin!);
 
 /** [major, minor, patch] of the first X.Y.Z a command prints; [0] when the command is missing. */
 export async function versionOf(cmd: string[]): Promise<number[]> {
@@ -123,8 +111,6 @@ async function main() {
   if (!claudeOk) process.exit(1);
   const [cMaj = 0, cMin = 0, cPatch = 0] = await versionOf(['claude', '--version']);
   if (cMaj * 1e6 + cMin * 1e3 + cPatch < 2_001_274) out('  note     fast-jev-compaction needs Claude Code 2.1.274 or newer; run `claude update`. Until then the built-in compaction runs.');
-  const [nodeMajor = 0] = await versionOf(['node', '--version']);
-  out(`  node     ${nodeMajor ? `${nodeMajor} ok` : 'missing — jev-browser needs Node 22+ (https://nodejs.org)'}`);
 
   // 2. Plugins, each from its own repo at the pinned version.
   const already = await installed();
@@ -158,10 +144,6 @@ async function main() {
       out(`  ${u.id.padEnd(20)} already installed`);
       continue;
     }
-    if (u.node && nodeMajor < u.node) {
-      out(`  ${u.id.padEnd(20)} skipped: needs Node ${u.node}+${nodeMajor ? `, found ${nodeMajor}` : ''}`);
-      continue;
-    }
     if (!APPLY) {
       out(`  ${u.id.padEnd(20)} would install with its official installer (${u.repo})`);
       continue;
@@ -169,6 +151,11 @@ async function main() {
     const r = await runInstaller(cmd);
     const ok = await isInstalled(u);
     out(`  ${u.id.padEnd(20)} ${ok ? 'installed' : `install failed: ${r.output.split('\n').filter(Boolean).pop() ?? 'no output'}`}`);
+  }
+  // jev-browser shipped in 0.11.0 and was dropped; unregister it.
+  if (APPLY && (await run(['claude', 'mcp', 'get', 'jev-browser'])).ok) {
+    const r = await run(['claude', 'mcp', 'remove', '-s', 'user', 'jev-browser']);
+    out(`  ${'jev-browser'.padEnd(20)} ${r.ok ? 'removed (dropped in 0.13.0)' : `remove failed: ${r.output.split('\n').pop()}`}`);
   }
 
   // 4. Settings, merged.
@@ -200,7 +187,7 @@ async function main() {
   // 6. Keys, presence only.
   out(`\n${bold('API keys')}`);
   out(`  JINA_API_KEY      ${process.env.JINA_API_KEY ? 'set' : 'not set — web search needs it (free: https://jina.ai/?sui=apikey)'}`);
-  out(`  TYPESAFE_API_KEY  ${process.env.TYPESAFE_API_KEY ? 'set' : 'not set — optional; turns on the Jev parts: skill suggestions, model routing, compaction, jev-browser, ranking'}`);
+  out(`  TYPESAFE_API_KEY  ${process.env.TYPESAFE_API_KEY ? 'set' : 'not set — optional; turns on the Jev parts: skill suggestions, model routing, compaction, ranking'}`);
 
   out(`\n${UPSTREAMS.length} upstreams pinned; see UPSTREAMS.md. Restart Claude Code when this finishes.`);
   if (!APPLY) out('Nothing was changed. Run: bun run setup --apply');

@@ -5,5 +5,3 @@
 - Large outputs, logs, files you need only parts of: use the stash tools (`stash_run`, `stash_index`, then `stash_search` / `stash_get`) instead of reading raw bytes into context.
 - Ponytail rules are injected each turn; follow them unless told "stop ponytail".
 - If codebase-memory is installed: for code structure questions (where is X defined, what calls X), use `search_graph` / `trace_path` / `get_code_snippet` before Grep or Read, and index the repo first (`list_projects`, then `index_repository`). Confirm "who calls X" counts with `search_code`; the graph misses calls through indirect types.
-- Multi-step browsing (click through a site, fill a search, reach a page behind navigation): use the jev-browser MCP tool when it is available; it returns the final page and a step trace. For reading one known URL, keep using `web-search read`.
-- On macOS, if agent-desktop is installed: drive native apps through its accessibility refs (`agent-desktop snapshot`, then act on refs) rather than screenshots; its skill has the commands.

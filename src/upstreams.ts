@@ -25,11 +25,8 @@ export interface Upstream {
   ours?: string;
   /** The tool's official install command per platform, for `kind: 'cli' | 'mcp'`; setup runs it when the tool is missing. A platform left out is not supported. */
   install?: Partial<Record<Platform, string>>;
-  /** How setup tells the tool is installed: an executable name, or a file under the home folder. Without either, an MCP server registered under `id`. */
+  /** Executable name; setup treats the tool as installed when it runs. */
   bin?: string;
-  path?: string;
-  /** Oldest Node.js major version the tool runs on. */
-  node?: number;
 }
 
 export const UPSTREAMS: Upstream[] = [
@@ -121,38 +118,6 @@ export const UPSTREAMS: Upstream[] = [
       win32: "$f = Join-Path $env:TEMP 'cbm-install.ps1'; irm https://raw.githubusercontent.com/DeusData/codebase-memory-mcp/main/install.ps1 -OutFile $f; Unblock-File $f; & $f",
     },
     bin: 'codebase-memory-mcp',
-  },
-  {
-    id: 'jev-browser',
-    repo: 'jkudish/jev-browser',
-    license: 'MIT',
-    kind: 'mcp',
-    version: '0.4.1',
-    commit: 'f2b13a05890c',
-    why: 'Multi-step browser tasks in headless Chromium, with Jev choosing each action: a few cents of Jev instead of Claude reading every page. Needs TYPESAFE_API_KEY.',
-    ours: 'Setup registers its MCP server for all projects (user scope).',
-    install: {
-      darwin: 'claude mcp add -s user jev-browser -- npx -y @jkudish/jev-browser@0.4.1',
-      linux: 'claude mcp add -s user jev-browser -- npx -y @jkudish/jev-browser@0.4.1',
-      // Claude Code on Windows can only start npx through cmd.
-      win32: 'claude mcp add -s user jev-browser -- cmd /c npx -y @jkudish/jev-browser@0.4.1',
-    },
-    node: 22,
-  },
-  {
-    id: 'agent-desktop',
-    repo: 'lahfir/agent-desktop',
-    license: 'Apache-2.0',
-    kind: 'cli',
-    version: '0.9.4',
-    commit: 'a4a695fdd1f6',
-    why: 'Drives native macOS apps through the accessibility tree: compact element refs instead of screenshots. macOS only.',
-    ours: 'Setup installs the CLI from npm and its agent-desktop and jev-desktop skills into ~/.claude/skills.',
-    install: {
-      darwin:
-        'npm install -g agent-desktop@0.9.4 && d=$(mktemp -d) && git clone -q --depth 1 --branch v0.9.4 https://github.com/lahfir/agent-desktop "$d" && mkdir -p ~/.claude/skills && cp -R "$d/skills/agent-desktop" "$d/skills/jev-desktop" ~/.claude/skills/ && rm -rf "$d"',
-    },
-    bin: 'agent-desktop',
   },
 ];
 
