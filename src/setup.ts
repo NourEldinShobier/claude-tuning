@@ -124,7 +124,7 @@ async function main() {
   const [cMaj = 0, cMin = 0, cPatch = 0] = await versionOf(['claude', '--version']);
   if (cMaj * 1e6 + cMin * 1e3 + cPatch < 2_001_274) out('  note     fast-jev-compaction needs Claude Code 2.1.274 or newer; run `claude update`. Until then the built-in compaction runs.');
   const [nodeMajor = 0] = await versionOf(['node', '--version']);
-  out(`  node     ${nodeMajor ? `${nodeMajor} ok` : 'missing — jev-browser and canny need Node 22+ (https://nodejs.org)'}`);
+  out(`  node     ${nodeMajor ? `${nodeMajor} ok` : 'missing — jev-browser needs Node 22+ (https://nodejs.org)'}`);
 
   // 2. Plugins, each from its own repo at the pinned version.
   const already = await installed();

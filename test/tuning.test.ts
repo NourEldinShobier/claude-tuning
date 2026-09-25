@@ -74,6 +74,14 @@ describe('settings merge', () => {
     expect(changes.length).toBeGreaterThan(0);
   });
 
+  test('removes Canny hooks left by 0.11.0 and keeps the others', () => {
+    const canny = { hooks: [{ type: 'command', command: 'node "C:\\Users\\x\\.canny\\src\\dist\\cli.js" hook --agent claude' }] };
+    const other = { matcher: 'Bash', hooks: [{ type: 'command', command: 'rtk hook claude' }] };
+    const { next } = merge({ hooks: { Stop: [canny], PreToolUse: [other, canny] } }, {});
+    expect(next.hooks).toEqual({ PreToolUse: [other] });
+    expect(UPSTREAMS.map((u) => u.id)).not.toContain('canny');
+  });
+
   test('is idempotent: a second merge changes nothing', () => {
     const once = merge({}, want).next;
     expect(merge(once, want).changes).toEqual([]);

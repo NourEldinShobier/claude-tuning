@@ -140,23 +140,6 @@ export const UPSTREAMS: Upstream[] = [
     node: 22,
   },
   {
-    id: 'canny',
-    repo: 'qkal/canny',
-    license: 'MIT',
-    kind: 'cli',
-    version: '0.3.0',
-    commit: 'f2c5e5377944',
-    why: 'Hooks that block "done" until a real check (tests, typecheck, lint) has passed since the last edit, so Claude does not stop on unverified work.',
-    ours: 'Setup follows its install: clone to ~/.canny/src, then `init --global --claude` writes its hooks into ~/.claude/settings.json.',
-    install: {
-      darwin: 'git clone -q https://github.com/qkal/canny.git ~/.canny/src && node ~/.canny/src/dist/cli.js init --global --claude',
-      linux: 'git clone -q https://github.com/qkal/canny.git ~/.canny/src && node ~/.canny/src/dist/cli.js init --global --claude',
-      win32: "$d = Join-Path $HOME '.canny\\src'; git clone -q https://github.com/qkal/canny.git $d; if ($LASTEXITCODE -eq 0) { node (Join-Path $d 'dist\\cli.js') init --global --claude }",
-    },
-    path: '.canny/src/dist/cli.js',
-    node: 22,
-  },
-  {
     id: 'agent-desktop',
     repo: 'lahfir/agent-desktop',
     license: 'Apache-2.0',

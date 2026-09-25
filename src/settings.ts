@@ -91,6 +91,14 @@ export function merge(current: Settings, want: Settings): { next: Settings; chan
   }
 
   next.hooks = { ...current.hooks };
+  // Canny shipped in 0.11.0 and was dropped; take its hooks back out.
+  for (const [event, entries] of Object.entries(next.hooks)) {
+    const kept = entries.filter((e) => !JSON.stringify(e).includes('.canny'));
+    if (kept.length === entries.length) continue;
+    changes.push(`hooks.${event}: -${entries.length - kept.length} (canny)`);
+    if (kept.length) next.hooks[event] = kept;
+    else delete next.hooks[event];
+  }
   for (const [event, entries] of Object.entries(want.hooks ?? {})) {
     const existing = next.hooks[event] ?? [];
     const missing = entries.filter((e) => !existing.some((x) => sameHook(x, e)));
