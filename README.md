@@ -27,7 +27,8 @@ Setting the API keys is the only step you do yourself.
 |---|---|---|
 | [Bun](https://bun.sh) | Yes | Installed by `/claude-tuning:tune` if missing |
 | Claude Code 2.1.274+ | For fast-jev-compaction | `claude update` |
-| `JINA_API_KEY` | Yes, for web search | Free at [jina.ai](https://jina.ai/?sui=apikey) |
+| `SERPER_API_KEY` | For web search | Free tier at [serper.dev](https://serper.dev). Scraping and crawling work without it |
+| `JINA_API_KEY` | Optional | stash uses it to load URLs. Free at [jina.ai](https://jina.ai/?sui=apikey) |
 | `TYPESAFE_API_KEY` | Optional | Turns on the Jev features below. [console.typesafe.ai](https://console.typesafe.ai/settings/keys) |
 
 ## What you get
@@ -45,13 +46,13 @@ Setting the API keys is the only step you do yourself.
 |---|---|
 | [rtk](https://github.com/rtk-ai/rtk) | Compresses shell output before Claude reads it: up to 90% less. Installed with its official installer if missing |
 | [stash](https://github.com/NourEldinShobier/stash) (ours) | Keeps big outputs in a local search index; Claude pulls back only what it needs |
-| [web-search](https://github.com/NourEldinShobier/web-search) (ours) | Web research in a fraction of the tokens |
+| [webclaw](https://github.com/0xMassi/webclaw) | Web search, scraping, crawling and extraction as clean markdown, over MCP. Installed from its release binaries if missing |
 | [ponytail](https://github.com/DietrichGebert/ponytail) | Keeps code minimal |
 | [i-have-adhd](https://github.com/ayghri/i-have-adhd) | Short answers that lead with the next action |
 | Tool rules in `~/.claude/CLAUDE.md` | Tell Claude when to use the tools above |
 | [codebase-memory](https://github.com/DeusData/codebase-memory-mcp) | Code graph; installed with its official installer if missing |
 | [fast-jev-compaction](https://github.com/tamaratran/fast-jev-compaction) (Jev) | Compaction that keeps chosen messages word for word instead of summarising them |
-| Settings | 700k auto-compact window, function hooks on (for compaction), the code-graph and rtk hooks, and auto-update for claude-tuning, stash and web-search |
+| Settings | 700k auto-compact window, function hooks on (for compaction), the code-graph and rtk hooks, and auto-update for claude-tuning and stash |
 
 Your existing settings are kept. Backups: `settings.json.bak`, `CLAUDE.md.bak`.
 
@@ -77,7 +78,7 @@ Running setup twice is safe. The second run changes nothing.
 | To turn off | Do this |
 |---|---|
 | rtk for one command | Run it as `rtk proxy <command>` |
-| One part | `claude plugin disable stash@stash` (or `web-search@web-search`, …) |
+| One part | `claude plugin disable stash@stash` (or `ponytail@ponytail`, …); `claude mcp remove -s user webclaw` |
 | All of it | `claude plugin disable claude-tuning@claude-tuning` |
 
 ## Tools we use
@@ -88,26 +89,27 @@ We copy no third-party code. Each tool installs from its own repo at a pinned ve
 |---|---|---|---|---|
 | [rtk](https://github.com/rtk-ai/rtk) | Compresses shell output: git, tests, builds, docker, kubectl, package managers and more | Up to 90% less output | Apache-2.0 | Installed by setup if missing, with its hook |
 | [stash](https://github.com/NourEldinShobier/stash) (ours) | Keeps big outputs, files and pages in a local search index. Claude pulls back only what it needs, ranked by Jev. | 91 KB of git history came back as 9.7 KB (89% less) | MIT | Installed by setup; install alone: `stash@stash` |
-| [web-search](https://github.com/NourEldinShobier/web-search) (ours) | Web search and page reading as compact markdown | ~24x fewer tokens and ~3.5x faster than calling Jina directly | MIT | Installed by setup |
+| [webclaw](https://github.com/0xMassi/webclaw) | Web search (via Serper), page scraping, crawling, sitemap mapping and batch extraction as clean markdown | No published token numbers; strips navigation and page clutter | AGPL-3.0 | Installed by setup if missing; MCP registered |
 | [ponytail](https://github.com/DietrichGebert/ponytail) | Makes Claude write the smallest code that works | 54% less code, 22% fewer tokens, 20% cheaper, 27% faster | MIT | Installed by setup |
 | [i-have-adhd](https://github.com/ayghri/i-have-adhd) | Answers lead with the next action: numbered steps, no filler | No published numbers; shorter answers | MIT | Installed by setup |
 | [codebase-memory-mcp](https://github.com/DeusData/codebase-memory-mcp) | Code graph: "where is X defined, who calls X" without reading whole files | 120x fewer tokens (3.4k vs 412k over 5 queries) | MIT | Installed by setup if missing |
 | [fast-jev-compaction](https://github.com/tamaratran/fast-jev-compaction) | Jev picks which messages survive compaction; kept ones stay verbatim | No published token numbers; no summary drift | MIT | Installed by setup; function hooks turned on |
 
-Gains for stash and web-search are our own measurements. Gains for the other tools come from their own READMEs and benchmarks. They measure different things, so the numbers don't add up to one total. Pinned versions are in [UPSTREAMS.md](UPSTREAMS.md).
+Gains for stash are our own measurements. Gains for the other tools come from their own READMEs and benchmarks. They measure different things, so the numbers don't add up to one total. Pinned versions are in [UPSTREAMS.md](UPSTREAMS.md).
 
 **Services:**
 
 | Service | Used by |
 |---|---|
-| [TypeSafe Jev](https://typesafe.ai) | Skill suggestions, model routing, compaction, stash ranking, web-search planning |
-| [Jina](https://jina.ai) | web-search (search, page reading, reranking) and stash URL loading |
+| [TypeSafe Jev](https://typesafe.ai) | Skill suggestions, model routing, compaction, stash ranking |
+| [Serper](https://serper.dev) | webclaw search |
+| [Jina](https://jina.ai) | stash URL loading |
 
-**Runtime:** [Bun](https://bun.sh) runs everything. Only Bun's built-ins are used: SQLite, fetch and spawn.
+**Runtime:** [Bun](https://bun.sh) runs our code. Only Bun's built-ins are used: SQLite, fetch and spawn.
 
 More detail, including pinned commits and what we change in each tool: [UPSTREAMS.md](UPSTREAMS.md).
 
-- stash and web-search are ours, written from scratch. Each lives in its own repo, so you can install any of them without this bundle.
+- stash is ours, written from scratch. It lives in its own repo, so you can install it without this bundle.
 - `bun run upstreams` shows which tools have newer releases.
 
 To update one:

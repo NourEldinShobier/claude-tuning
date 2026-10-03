@@ -23,14 +23,14 @@ describe('roster', () => {
   test.skipIf(!existsSync(join(homedir(), '.claude', 'skills')))('reads personal and plugin skills', () => {
     const roster = loadRoster(process.cwd());
     expect(roster.length).toBeGreaterThan(100);
-    expect(roster.some((s) => s.id === 'web-search:web-search')).toBe(true);
+    expect(roster.some((s) => s.id === 'claude-tuning:tune')).toBe(true);
   });
 });
 
 describe('suggest', () => {
   test('skips slash commands, skill invocations and short replies', () => {
     expect(skip('go')).toBe(true);
-    expect(skip('/web-search:web-search bun')).toBe(true);
+    expect(skip('/claude-tuning:tune check')).toBe(true);
     expect(skip('add a scroll reveal animation to the hero section')).toBe(false);
   });
 
@@ -67,7 +67,7 @@ describe('settings merge', () => {
     const { next, changes } = merge(current, want);
     expect(next.model).toBe('opus');
     expect(next.env!.FOO).toBe('bar');
-    expect(next.env!.PONYTAIL_SUBAGENT_MATCHER).toBeDefined();
+    expect(next.env!.CLAUDE_CODE_ENABLE_FUNCTION_HOOKS).toBe('1');
     expect(next.env!.CLAUDE_CODE_ENABLE_FUNCTION_HOOKS).toBe('1'); // fast-jev-compaction needs it
     expect(next.env!.CLAUDE_CODE_SUBAGENT_MODEL).toBeUndefined(); // subagent limits are personal, not ours to set
     expect(next.hooks!.PreToolUse).toEqual(current.hooks!.PreToolUse);
@@ -110,9 +110,8 @@ describe('settings merge', () => {
     };
     const { next } = merge(current, want);
     const m = next.extraKnownMarketplaces as Record<string, { source: { source: string; path?: string; repo?: string }; autoUpdate?: boolean }>;
-    for (const name of ['claude-tuning', 'stash', 'web-search']) expect(m[name]!.autoUpdate).toBe(true);
+    for (const name of ['claude-tuning', 'stash']) expect(m[name]!.autoUpdate).toBe(true);
     expect(m.stash!.source).toEqual({ source: 'directory', path: 'D:/dev/stash' });
-    expect(m['web-search']!.source).toEqual({ source: 'github', repo: 'NourEldinShobier/web-search' });
     expect(m.squeeze).toBeUndefined();
     expect(m.ponytail!.autoUpdate).toBeUndefined(); // third-party stays pinned
     expect(merge(next, want).changes).toEqual([]);
@@ -162,8 +161,9 @@ describe('upstreams', () => {
   test('the marketplace lists every plugin of ours that setup installs', async () => {
     const { readFileSync } = await import('node:fs');
     const listed = JSON.parse(readFileSync('.claude-plugin/marketplace.json', 'utf8')).plugins.map((p: { name: string }) => p.name);
-    for (const id of ['stash', 'web-search']) expect(listed).toContain(id);
+    for (const id of ['stash']) expect(listed).toContain(id);
     expect(listed).not.toContain('squeeze');
+    expect(listed).not.toContain('web-search');
   });
 
   test('no third-party code is vendored: only our own src/, skills/ and hooks/', async () => {

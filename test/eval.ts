@@ -8,7 +8,6 @@ const CASES: [string, string | null][] = [
   ['make me a pptx deck summarizing our Q3 results', 'anthropic-skills:pptx'],
   ['from now on, whenever I edit a ts file, run prettier on it automatically', 'update-config'],
   ['review my current diff for bugs before I merge', 'code-review'],
-  ['what do people on reddit think of bun 1.4? search online', 'web-search:web-search'],
   ['extract the color palette from this screenshot and turn it into css variables', 'image-palette'],
   ['look up the latest Next.js docs for server actions', 'context7:docs'],
   ['explain what a monad is in simple terms', null],

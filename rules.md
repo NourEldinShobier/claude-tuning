@@ -1,6 +1,6 @@
 ## Token-saving tools (claude-tuning)
 
-- Online research: use the `web-search` CLI via Bash (`search`, `news`, `papers`, `images`, `read <url> --focus "..."`), not WebSearch/WebFetch. Search first, read only the 1–3 results that matter, always with `--focus`.
+- Online research, scraping and crawling: use the webclaw MCP tools, not WebSearch/WebFetch. `search` finds pages (needs SERPER_API_KEY; if it reports no key, fall back to WebSearch), `scrape` reads one page (`format: "llm"`, `only_main_content: true`), `batch` reads several, `map` lists a site's URLs from its sitemap, `crawl` follows links (set `max_pages`). Search first and read only the 1–3 results that matter. Pages rendered by JavaScript can come back empty; try the site's RSS feed or API instead. `extract`, `summarize` and `research` need an LLM or a webclaw cloud key; read the page with `scrape` instead.
 - Shell commands are compressed by rtk's hook (git, tests, builds, listings…). When you need a command's raw, unfiltered output, run it as `rtk proxy <command>`. Run commands unpiped so rtk, not `head`, decides what to drop.
 - Large outputs, logs, files you need only parts of: use the stash tools (`stash_run`, `stash_index`, then `stash_search` / `stash_get`) instead of reading raw bytes into context.
 - Ponytail rules are injected each turn; follow them unless told "stop ponytail".

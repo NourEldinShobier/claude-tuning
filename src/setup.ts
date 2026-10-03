@@ -152,6 +152,16 @@ async function main() {
     const ok = await isInstalled(u);
     out(`  ${u.id.padEnd(20)} ${ok ? 'installed' : `install failed: ${r.output.split('\n').filter(Boolean).pop() ?? 'no output'}`}`);
   }
+  // webclaw's MCP server, registered next to its CLI. An existing registration (Docker, a custom path) is kept.
+  const webclaw = wanted({ id: 'webclaw' }) ? await binPath('webclaw') : undefined;
+  if (webclaw && !(await run(['claude', 'mcp', 'get', 'webclaw'])).ok) {
+    const mcp = webclaw.replace(/webclaw(\.exe)?$/, 'webclaw-mcp$1');
+    if (!APPLY) out(`  ${'webclaw mcp'.padEnd(20)} would register ${mcp} (user scope)`);
+    else {
+      const r = await run(['claude', 'mcp', 'add', '-s', 'user', 'webclaw', '--', mcp]);
+      out(`  ${'webclaw mcp'.padEnd(20)} ${r.ok ? 'registered' : `register failed: ${r.output.split('\n').pop()}`}`);
+    }
+  }
   // jev-browser shipped in 0.11.0 and was dropped; unregister it.
   if (APPLY && (await run(['claude', 'mcp', 'get', 'jev-browser'])).ok) {
     const r = await run(['claude', 'mcp', 'remove', '-s', 'user', 'jev-browser']);
@@ -186,7 +196,8 @@ async function main() {
 
   // 6. Keys, presence only.
   out(`\n${bold('API keys')}`);
-  out(`  JINA_API_KEY      ${process.env.JINA_API_KEY ? 'set' : 'not set — web search needs it (free: https://jina.ai/?sui=apikey)'}`);
+  out(`  SERPER_API_KEY    ${process.env.SERPER_API_KEY ? 'set' : 'not set — webclaw search needs it (free tier: https://serper.dev); scraping and crawling work without it'}`);
+  out(`  JINA_API_KEY      ${process.env.JINA_API_KEY ? 'set' : 'not set — optional; stash uses it to load URLs (free: https://jina.ai/?sui=apikey)'}`);
   out(`  TYPESAFE_API_KEY  ${process.env.TYPESAFE_API_KEY ? 'set' : 'not set — optional; turns on the Jev parts: skill suggestions, model routing, compaction, ranking'}`);
 
   out(`\n${UPSTREAMS.length} upstreams pinned; see UPSTREAMS.md. Restart Claude Code when this finishes.`);

@@ -12,14 +12,6 @@
       "description": "Jev skill suggestions and model routing, plus the setup command that installs the whole token-saving set"
     },
     {
-      "name": "web-search",
-      "source": {
-        "source": "github",
-        "repo": "NourEldinShobier/web-search"
-      },
-      "description": "Token-efficient web, news, paper and image search plus page/PDF reading"
-    },
-    {
       "name": "stash",
       "source": {
         "source": "github",

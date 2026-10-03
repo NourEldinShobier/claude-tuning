@@ -12,11 +12,9 @@ export interface Settings {
   [k: string]: unknown;
 }
 
-/** Tuning that is not code: the auto-compact window, the ponytail exemption and the code-graph hooks. */
+/** Tuning that is not code: the auto-compact window, function hooks and the rtk and code-graph hooks. */
 export function desired(has: { codebaseMemory: boolean; rtk?: string }): Settings {
   const env: Record<string, string> = {
-    // web-search's researcher agent gets no ponytail rules: it writes no code, and they cost ~1.4k tokens.
-    PONYTAIL_SUBAGENT_MATCHER: '^(?!web-search:web-researcher$)',
     // fast-jev-compaction runs as a function hook, an early-access feature behind this flag.
     CLAUDE_CODE_ENABLE_FUNCTION_HOOKS: '1',
   };
@@ -38,7 +36,7 @@ export function desired(has: { codebaseMemory: boolean; rtk?: string }): Setting
 }
 
 /** Marketplaces we publish; setup turns on auto-update for them. Third-party ones stay on their pinned versions. */
-export const OUR_MARKETPLACES = ['NourEldinShobier/claude-tuning', 'NourEldinShobier/stash', 'NourEldinShobier/web-search'];
+export const OUR_MARKETPLACES = ['NourEldinShobier/claude-tuning', 'NourEldinShobier/stash'];
 
 type Marketplace = { source?: unknown; autoUpdate?: boolean; [k: string]: unknown };
 

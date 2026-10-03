@@ -29,6 +29,11 @@ export interface Upstream {
   bin?: string;
 }
 
+const WEBCLAW = '0.6.23';
+/** Release archive for this machine (x86_64 or aarch64), unpacked into ~/.local/bin. */
+const webclawUnix = (target: string) =>
+  `a=$(uname -m); case $a in arm64|aarch64) a=aarch64;; *) a=x86_64;; esac; n=webclaw-v${WEBCLAW}-$a-${target}; mkdir -p ~/.local/bin; curl -fsSL https://github.com/0xMassi/webclaw/releases/download/v${WEBCLAW}/$n.tar.gz | tar xz -C /tmp && cp /tmp/$n/webclaw /tmp/$n/webclaw-mcp ~/.local/bin/`;
+
 export const UPSTREAMS: Upstream[] = [
   {
     id: 'stash',
@@ -43,18 +48,6 @@ export const UPSTREAMS: Upstream[] = [
     ours: 'Ours. Separate repo so it can be installed alone.',
   },
   {
-    id: 'web-search',
-    repo: 'NourEldinShobier/web-search',
-    license: 'MIT',
-    kind: 'plugin',
-    marketplace: 'web-search',
-    plugin: 'web-search',
-    version: '0.6.3',
-    commit: '299062a5466b',
-    why: 'Web, news, paper and image search plus page/PDF reading, trimmed for agents. Replaces WebSearch/WebFetch.',
-    ours: 'Ours. Separate repo so it is useful without this bundle.',
-  },
-  {
     id: 'ponytail',
     repo: 'DietrichGebert/ponytail',
     license: 'MIT',
@@ -64,7 +57,6 @@ export const UPSTREAMS: Upstream[] = [
     version: '4.10.0',
     commit: 'e3ba2aa6f1e6f0bc4d69eb09c9f0d0a93af56156',
     why: 'Pushes the agent to the simplest solution that works, and to reuse what the repo already has.',
-    ours: 'Its per-subagent rules are turned off for the web-search researcher (PONYTAIL_SUBAGENT_MATCHER), which saves about 1.4k tokens per research agent.',
   },
   {
     id: 'i-have-adhd',
@@ -118,6 +110,22 @@ export const UPSTREAMS: Upstream[] = [
       win32: "$f = Join-Path $env:TEMP 'cbm-install.ps1'; irm https://raw.githubusercontent.com/DeusData/codebase-memory-mcp/main/install.ps1 -OutFile $f; Unblock-File $f; & $f",
     },
     bin: 'codebase-memory-mcp',
+  },
+  {
+    id: 'webclaw',
+    repo: '0xMassi/webclaw',
+    license: 'AGPL-3.0',
+    kind: 'mcp',
+    version: WEBCLAW,
+    commit: 'aadf8ed1ef61',
+    why: 'Web search, scraping, crawling, sitemap mapping and multi-page extraction as clean markdown, over MCP. Replaces WebSearch/WebFetch. Search needs SERPER_API_KEY.',
+    ours: 'Setup downloads its official release binaries into ~/.local/bin and registers webclaw-mcp with Claude Code (user scope). An existing webclaw registration (Docker, a custom path) is kept.',
+    install: {
+      darwin: webclawUnix('apple-darwin'),
+      linux: webclawUnix('unknown-linux-musl'),
+      win32: `$d = Join-Path $env:USERPROFILE '.local/bin'; New-Item -ItemType Directory -Force $d | Out-Null; $n = 'webclaw-v${WEBCLAW}-x86_64-pc-windows-msvc'; $z = Join-Path $env:TEMP "$n.zip"; irm https://github.com/0xMassi/webclaw/releases/download/v${WEBCLAW}/$n.zip -OutFile $z; Expand-Archive $z -DestinationPath $env:TEMP -Force; Copy-Item (Join-Path $env:TEMP "$n/webclaw*.exe") $d -Force`,
+    },
+    bin: 'webclaw',
   },
 ];
 
