@@ -127,7 +127,7 @@ async function main() {
       continue;
     }
     const add = await run(['claude', 'plugin', 'marketplace', 'add', u.repo]);
-    const install = await run(['claude', 'plugin', 'install', id]);
+    const install = await run(['claude', 'plugin', 'install', id, ...Object.entries(u.config ?? {}).map(([k, v]) => `--config=${k}=${v}`)]);
     out(`  ${u.id.padEnd(20)} ${install.ok ? 'installed' : `failed: ${(install.output || add.output).split('\n').pop()}`}`);
   }
 

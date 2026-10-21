@@ -52,6 +52,8 @@ Setting the API keys is the only step you do yourself.
 | Tool rules in `~/.claude/CLAUDE.md` | Tell Claude when to use the tools above |
 | [codebase-memory](https://github.com/DeusData/codebase-memory-mcp) | Code graph; installed with its official installer if missing |
 | [fast-jev-compaction](https://github.com/tamaratran/fast-jev-compaction) (Jev) | Compaction that keeps chosen messages word for word instead of summarising them |
+| [compact-adviser](https://github.com/kunchenguid/compact-adviser) (Jev) | Compacts on its own at a finished checkpoint, not mid-task. Confirm once with `/compact-adviser auto` |
+| [jev-steer-or-queue](https://github.com/Larkspur-Wang/Jev_steer_or_queue) (Jev) | Decides whether a message you send mid-turn steers, queues or stops the task |
 | Settings | 700k auto-compact window, function hooks on (for compaction), the code-graph and rtk hooks, and auto-update for claude-tuning and stash |
 
 Your existing settings are kept. Backups: `settings.json.bak`, `CLAUDE.md.bak`.
@@ -61,7 +63,7 @@ Your existing settings are kept. Backups: `settings.json.bak`, `CLAUDE.md.bak`.
 Everything still works:
 
 - Skill suggestions and model routing turn off.
-- Compaction falls back to Claude Code's own.
+- Compaction falls back to Claude Code's own; compact-adviser and jev-steer-or-queue stay idle.
 - stash ranks results without Jev.
 
 ## Setup options
@@ -94,6 +96,8 @@ We copy no third-party code. Each tool installs from its own repo at a pinned ve
 | [i-have-adhd](https://github.com/ayghri/i-have-adhd) | Answers lead with the next action: numbered steps, no filler | No published numbers; shorter answers | MIT | Installed by setup |
 | [codebase-memory-mcp](https://github.com/DeusData/codebase-memory-mcp) | Code graph: "where is X defined, who calls X" without reading whole files | 120x fewer tokens (3.4k vs 412k over 5 queries) | MIT | Installed by setup if missing |
 | [fast-jev-compaction](https://github.com/tamaratran/fast-jev-compaction) | Jev picks which messages survive compaction; kept ones stay verbatim | No published token numbers; no summary drift | MIT | Installed by setup; function hooks turned on |
+| [compact-adviser](https://github.com/kunchenguid/compact-adviser) | Jev picks a finished checkpoint and runs /compact there | No published token numbers; avoids compacting mid-task | MIT | Installed by setup in auto mode |
+| [jev-steer-or-queue](https://github.com/Larkspur-Wang/Jev_steer_or_queue) | Jev routes mid-turn messages: steer, queue until the turn ends, or stop | No token numbers; 450–650 ms per mid-turn message | MIT | Installed by setup in shadow mode |
 
 Gains for stash are our own measurements. Gains for the other tools come from their own READMEs and benchmarks. They measure different things, so the numbers don't add up to one total. Pinned versions are in [UPSTREAMS.md](UPSTREAMS.md).
 

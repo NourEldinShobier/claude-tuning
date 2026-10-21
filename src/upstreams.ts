@@ -25,6 +25,8 @@ export interface Upstream {
   ours?: string;
   /** The tool's official install command per platform, for `kind: 'cli' | 'mcp'`; setup runs it when the tool is missing. A platform left out is not supported. */
   install?: Partial<Record<Platform, string>>;
+  /** Plugin options passed to `claude plugin install --config KEY=VALUE`. */
+  config?: Record<string, string>;
   /** Executable name; setup treats the tool as installed when it runs. */
   bin?: string;
 }
@@ -80,6 +82,31 @@ export const UPSTREAMS: Upstream[] = [
     commit: 'e3f262a7f4d4',
     why: "Replaces Claude Code's summarising compaction: Jev picks which messages to keep, and kept messages stay word for word. Needs Claude Code 2.1.274+ and TYPESAFE_API_KEY; without them the built-in compaction runs.",
     ours: 'Setup turns on function hooks (CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1), which it needs.',
+  },
+  {
+    id: 'compact-adviser',
+    repo: 'kunchenguid/compact-adviser',
+    license: 'MIT',
+    kind: 'plugin',
+    marketplace: 'compact-adviser',
+    plugin: 'compact-adviser',
+    version: '0.1.13',
+    commit: '7dc0693ea7f2',
+    why: 'Jev judges when a finished piece of work makes a safe point to /compact, and compacts there instead of mid-task. Needs Claude Code 2.1.274+, Node 22+ and TYPESAFE_API_KEY.',
+    ours: 'Setup installs it in auto mode; run /compact-adviser auto once to confirm. Uses the function hooks setup already turns on.',
+    config: { mode: 'auto' },
+  },
+  {
+    id: 'jev-steer-or-queue',
+    repo: 'Larkspur-Wang/Jev_steer_or_queue',
+    license: 'MIT',
+    kind: 'plugin',
+    marketplace: 'jev-steer-or-queue',
+    plugin: 'jev-steer-or-queue',
+    version: '0.2.0',
+    commit: '3924e8841d6e',
+    why: 'Jev decides whether a message sent mid-turn steers the running task, waits in a queue until the turn ends, or stops it. Needs python3 and TYPESAFE_API_KEY.',
+    ours: 'Installed in its default shadow mode (logs decisions only); set its mode to active in /plugin to queue and stop for real.',
   },
   {
     id: 'rtk',
