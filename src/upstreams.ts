@@ -31,7 +31,7 @@ export interface Upstream {
   bin?: string;
 }
 
-const WEBCLAW = '0.6.23';
+const WEBCLAW = '0.7.0';
 /** Release archive for this machine (x86_64 or aarch64), unpacked into ~/.local/bin. */
 const webclawUnix = (target: string) =>
   `a=$(uname -m); case $a in arm64|aarch64) a=aarch64;; *) a=x86_64;; esac; n=webclaw-v${WEBCLAW}-$a-${target}; mkdir -p ~/.local/bin; curl -fsSL https://github.com/0xMassi/webclaw/releases/download/v${WEBCLAW}/$n.tar.gz | tar xz -C /tmp && cp /tmp/$n/webclaw /tmp/$n/webclaw-mcp ~/.local/bin/`;
@@ -67,8 +67,8 @@ export const UPSTREAMS: Upstream[] = [
     kind: 'plugin',
     marketplace: 'i-have-adhd',
     plugin: 'i-have-adhd',
-    version: '0.3.0',
-    commit: '6f1f982d0a47c65899af3c5a7450b7098bc65325',
+    version: '0.4.1',
+    commit: '1ecea1993b7fce257ffbd686c070948b5e07eda6',
     why: 'Answers lead with the next action, numbered steps, no preamble. Shorter output is also cheaper output.',
   },
   {
@@ -125,14 +125,14 @@ export const UPSTREAMS: Upstream[] = [
     repo: 'rtk-ai/rtk',
     license: 'Apache-2.0',
     kind: 'cli',
-    version: '0.49.0',
-    commit: 'b1c0dc00649c50fbe8930f849c800d4d6ca12091',
+    version: '1.0.1',
+    commit: '4ef8730cf3a0dea11c8d64a9b90bc0616fe52100',
     why: 'Compresses shell output (git, tests, builds, docker, kubectl, package managers and more) before it reaches the model. Up to 90% less output.',
-    ours: 'Setup installs it with its official installer and adds its Claude Code hook (rtk hook claude) for Bash and PowerShell.',
+    ours: 'Setup installs rtk-oss, the Apache-2.0 edition (hooks and every command filter; the full edition adds a BUSL-1.1 compression engine), with its official installer, and adds its Claude Code hook (rtk hook claude) for Bash and PowerShell.',
     install: {
-      darwin: 'curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh',
-      linux: 'curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh',
-      win32: "$d = Join-Path $env:USERPROFILE '.local\\bin'; New-Item -ItemType Directory -Force $d | Out-Null; $z = Join-Path $env:TEMP 'rtk.zip'; irm https://github.com/rtk-ai/rtk/releases/latest/download/rtk-x86_64-pc-windows-msvc.zip -OutFile $z; Expand-Archive $z -DestinationPath $d -Force",
+      darwin: 'curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | RTK_EDITION=oss sh',
+      linux: 'curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | RTK_EDITION=oss sh',
+      win32: "$d = Join-Path $env:USERPROFILE '.local\\bin'; New-Item -ItemType Directory -Force $d | Out-Null; $z = Join-Path $env:TEMP 'rtk.zip'; $x = Join-Path $env:TEMP 'rtk-oss'; irm https://github.com/rtk-ai/rtk/releases/download/v1.0.1/rtk-oss-x86_64-pc-windows-msvc.zip -OutFile $z; Expand-Archive $z -DestinationPath $x -Force; Copy-Item (Join-Path $x 'rtk.exe') $d -Force",
     },
     bin: 'rtk',
   },
@@ -141,8 +141,8 @@ export const UPSTREAMS: Upstream[] = [
     repo: 'DeusData/codebase-memory-mcp',
     license: 'MIT',
     kind: 'mcp',
-    version: '0.11.0',
-    commit: '8972ea69c6ad94b1ef1d4ffbf0a92d78d2db1798',
+    version: '0.12.1',
+    commit: 'a7158ac2f48ca646b4527341b76f930f2aeff87e',
     why: 'Code graph for structural questions (where is X defined, who calls X) without grepping whole files into context.',
     ours: 'The setup writes the rule that the graph misses callers with indirect types, so counts are confirmed with a text search.',
     install: {
@@ -158,7 +158,7 @@ export const UPSTREAMS: Upstream[] = [
     license: 'AGPL-3.0',
     kind: 'mcp',
     version: WEBCLAW,
-    commit: 'aadf8ed1ef6102d4fccabef9680fa894c28a19f3',
+    commit: 'c023eb99aecbb98b78d25b352d82c757e3fe934d',
     why: 'Web search, scraping, crawling, sitemap mapping and multi-page extraction as clean markdown, over MCP. Replaces WebSearch/WebFetch. Search needs SERPER_API_KEY.',
     ours: 'Setup downloads its official release binaries into ~/.local/bin and registers webclaw-mcp with Claude Code (user scope). An existing webclaw registration (Docker, a custom path) is kept.',
     install: {

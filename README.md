@@ -80,7 +80,7 @@ Running setup twice is safe. The second run changes nothing.
 
 | To turn off | Do this |
 |---|---|
-| rtk for one command | Run it as `rtk proxy <command>` |
+| rtk for one command | Run it as `rtk bypass <command>` |
 | One part | `claude plugin disable stash@stash` (or `ponytail@ponytail`, …); `claude mcp remove -s user webclaw` |
 | All of it | `claude plugin disable claude-tuning@claude-tuning` |
 
