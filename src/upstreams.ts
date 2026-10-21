@@ -84,6 +84,18 @@ export const UPSTREAMS: Upstream[] = [
     ours: 'Setup turns on function hooks (CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1), which it needs.',
   },
   {
+    id: 'quicksilver',
+    repo: 'UditAkhourii/quicksilver',
+    license: 'MIT',
+    kind: 'plugin',
+    marketplace: 'quicksilver',
+    plugin: 'quicksilver',
+    version: '0.1.0',
+    commit: '5d6fe5cd4f9d',
+    why: 'Skill that hands bulk judgment calls (which files matter, which log lines are failures, labels for many items, ranking) to Jev, so Claude reads only the shortlist. 86% fewer Claude tokens on its 12-task benchmark. Needs Node 18+ and TYPESAFE_API_KEY.',
+    ours: 'The tool rules tell Claude when to reach for it.',
+  },
+  {
     id: 'compact-adviser',
     repo: 'kunchenguid/compact-adviser',
     license: 'MIT',
