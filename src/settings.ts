@@ -36,7 +36,7 @@ export function desired(has: { codebaseMemory: boolean; rtk?: string }): Setting
 }
 
 /** Marketplaces we publish; setup turns on auto-update for them. Third-party ones stay on their pinned versions. */
-export const OUR_MARKETPLACES = ['NourEldinShobier/claude-tuning', 'NourEldinShobier/stash'];
+export const OUR_MARKETPLACES = ['NourEldinShobier/claude-tuning', 'NourEldinShobier/stash', 'NourEldinShobier/deepseek-search'];
 
 type Marketplace = { source?: unknown; autoUpdate?: boolean; [k: string]: unknown };
 

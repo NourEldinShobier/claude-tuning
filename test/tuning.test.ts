@@ -191,9 +191,23 @@ import { binPaths, hasBin, isInstalled, shellFor, versionOf } from '../src/setup
 import { tools } from '../src/upstreams';
 
 describe('tool install', () => {
+  test('a skill counts as installed only once its SKILL.md is there', async () => {
+    const { isInstalled } = await import('../src/setup');
+    expect(await isInstalled({ id: 'x', repo: 'a/b', license: 'MIT', kind: 'skill', version: '1', why: '', path: '.claude/skills/__none__' })).toBe(false);
+  });
+
+  test('toolgate installs the injection-only policy only when none exists, then its hooks', () => {
+    const u = tools().find((t) => t.id === 'toolgate')!;
+    expect(u.install!.linux).toContain('[ -f ~/.toolgate/toolgate.yaml ] || cp');
+    expect(u.install!.linux).toEndWith('toolgate install');
+    expect(u.install!.win32).toContain("if (-not (Test-Path $p))");
+    expect(u.install!.win32).toContain('--allow-git=all github:NourEldinShobier/toolgate#');
+  });
+
   test('every tool can be detected and installs on every platform', () => {
     for (const u of tools()) {
-      expect(u.bin).toBeTruthy();
+      // A skill is detected by its folder, everything else by its executable.
+      expect(u.kind === 'skill' ? u.path : u.bin).toBeTruthy();
       const platforms = Object.keys(u.install ?? {});
       expect(platforms).toEqual(['darwin', 'linux', 'win32']);
       // A Windows installer that downloads a file puts it in %TEMP%, never in the folder setup runs in.

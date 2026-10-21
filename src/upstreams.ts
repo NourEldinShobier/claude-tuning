@@ -12,7 +12,7 @@ export interface Upstream {
   repo: string;
   /** SPDX id, or 'none' when the project declares no licence (then we can only install, never copy). */
   license: string;
-  kind: 'plugin' | 'cli' | 'mcp';
+  kind: 'plugin' | 'cli' | 'mcp' | 'skill';
   /** Claude Code marketplace and plugin id, for `kind: 'plugin'`. */
   marketplace?: string;
   plugin?: string;
@@ -29,12 +29,14 @@ export interface Upstream {
   config?: Record<string, string>;
   /** Executable name; setup treats the tool as installed when it runs. */
   bin?: string;
+  /** For `kind: 'skill'`: folder under the home directory; installed when its SKILL.md exists. */
+  path?: string;
 }
 
-const WEBCLAW = '0.7.0';
-/** Release archive for this machine (x86_64 or aarch64), unpacked into ~/.local/bin. */
-const webclawUnix = (target: string) =>
-  `a=$(uname -m); case $a in arm64|aarch64) a=aarch64;; *) a=x86_64;; esac; n=webclaw-v${WEBCLAW}-$a-${target}; mkdir -p ~/.local/bin; curl -fsSL https://github.com/0xMassi/webclaw/releases/download/v${WEBCLAW}/$n.tar.gz | tar xz -C /tmp && cp /tmp/$n/webclaw /tmp/$n/webclaw-mcp ~/.local/bin/`;
+const TOOLGATE = '11aa21e4e3381b7f8aa8d4b4d442380e989ab52c';
+/** npm 12 refuses git packages unless asked; the fork ships dist/, so no install scripts are needed. */
+const toolgateNpm = `npm install -g --allow-git=all github:NourEldinShobier/toolgate#${TOOLGATE}`;
+const JEV_SEO = '55a184a3b0d09565a4c84268f725a47784e62528';
 
 export const UPSTREAMS: Upstream[] = [
   {
@@ -153,20 +155,48 @@ export const UPSTREAMS: Upstream[] = [
     bin: 'codebase-memory-mcp',
   },
   {
-    id: 'webclaw',
-    repo: '0xMassi/webclaw',
-    license: 'AGPL-3.0',
-    kind: 'mcp',
-    version: WEBCLAW,
-    commit: 'c023eb99aecbb98b78d25b352d82c757e3fe934d',
-    why: 'Web search, scraping, crawling, sitemap mapping and multi-page extraction as clean markdown, over MCP. Replaces WebSearch/WebFetch. Search needs SERPER_API_KEY.',
-    ours: 'Setup downloads its official release binaries into ~/.local/bin and registers webclaw-mcp with Claude Code (user scope). An existing webclaw registration (Docker, a custom path) is kept.',
+    id: 'deepseek-search',
+    repo: 'NourEldinShobier/deepseek-search',
+    license: 'MIT',
+    kind: 'plugin',
+    marketplace: 'deepseek-search',
+    plugin: 'deepseek-search',
+    version: '0.1.0',
+    commit: 'f722e976b1f55ec0ce77a072c3cfbb540ebe74dc',
+    why: "Web search and page reading through DeepSeek's Search and Fetch APIs ($0.75 per 1,000 calls): ranked results with summaries, parallel multi-query search, paged Markdown pages. A hook sends WebSearch/WebFetch to it and lets the built-in tools run when DeepSeek has no key or fails. Needs DEEPSEEK_API_KEY.",
+    ours: 'Ours. Separate repo so it can be installed alone.',
+  },
+  {
+    id: 'toolgate',
+    repo: 'NourEldinShobier/toolgate',
+    license: 'MIT',
+    kind: 'cli',
+    version: '0.17.1',
+    commit: TOOLGATE,
+    why: "Jev checks each tool call before it runs. Configured here to stop only prompt injection: calls that follow instructions from a web page, file or tool output instead of the user's task. Needs TYPESAFE_API_KEY.",
+    ours: 'Our fork of RiskAverseTech/toolgate (see its UPSTREAM.lock.json): built-in risk questions can be turned off, dist/ is committed so it installs from GitHub, and the doctor works on Windows. Setup installs the injection-only policy (when ~/.toolgate/toolgate.yaml is missing) and its Claude Code hooks.',
     install: {
-      darwin: webclawUnix('apple-darwin'),
-      linux: webclawUnix('unknown-linux-musl'),
-      win32: `$d = Join-Path $env:USERPROFILE '.local/bin'; New-Item -ItemType Directory -Force $d | Out-Null; $n = 'webclaw-v${WEBCLAW}-x86_64-pc-windows-msvc'; $z = Join-Path $env:TEMP "$n.zip"; irm https://github.com/0xMassi/webclaw/releases/download/v${WEBCLAW}/$n.zip -OutFile $z; Expand-Archive $z -DestinationPath $env:TEMP -Force; Copy-Item (Join-Path $env:TEMP "$n/webclaw*.exe") $d -Force`,
+      darwin: `${toolgateNpm} && mkdir -p ~/.toolgate && { [ -f ~/.toolgate/toolgate.yaml ] || cp "$(npm root -g)/@riskaverse/toolgate/examples/injection-only.yaml" ~/.toolgate/toolgate.yaml; } && toolgate install`,
+      linux: `${toolgateNpm} && mkdir -p ~/.toolgate && { [ -f ~/.toolgate/toolgate.yaml ] || cp "$(npm root -g)/@riskaverse/toolgate/examples/injection-only.yaml" ~/.toolgate/toolgate.yaml; } && toolgate install`,
+      win32: `${toolgateNpm}; if ($?) { $d = Join-Path $env:USERPROFILE '.toolgate'; New-Item -ItemType Directory -Force $d | Out-Null; $p = Join-Path $d 'toolgate.yaml'; if (-not (Test-Path $p)) { Copy-Item (Join-Path (npm root -g) '@riskaverse/toolgate/examples/injection-only.yaml') $p }; toolgate install }`,
     },
-    bin: 'webclaw',
+    bin: 'toolgate',
+  },
+  {
+    id: 'jev-seo',
+    repo: 'AgriciDaniel/jev-seo',
+    license: 'MIT',
+    kind: 'skill',
+    version: '0.1.1',
+    commit: JEV_SEO,
+    why: 'Skill: live SEO audit of a site from its homepage URL, judged by Jev, with PDF, XLSX and Markdown reports (/jev-seo <url>). Needs Python 3.10+, TYPESAFE_API_KEY, and the Pango library for PDFs (see its README; on Windows, MSYS2 pango plus WEASYPRINT_DLL_DIRECTORIES).',
+    ours: 'Setup clones it into ~/.claude/skills/jev-seo at the pinned commit and installs its Python requirements for the current user.',
+    install: {
+      darwin: `d=~/.claude/skills/jev-seo; git clone -q https://github.com/AgriciDaniel/jev-seo "$d" && git -C "$d" checkout -q ${JEV_SEO} && python3 -m pip install -q --user -r "$d/requirements.txt"`,
+      linux: `d=~/.claude/skills/jev-seo; git clone -q https://github.com/AgriciDaniel/jev-seo "$d" && git -C "$d" checkout -q ${JEV_SEO} && python3 -m pip install -q --user -r "$d/requirements.txt"`,
+      win32: `$d = Join-Path $env:USERPROFILE '.claude/skills/jev-seo'; git clone -q https://github.com/AgriciDaniel/jev-seo $d; if ($?) { git -C $d checkout -q ${JEV_SEO}; python -m pip install -q --user -r (Join-Path $d 'requirements.txt') }`,
+    },
+    path: '.claude/skills/jev-seo',
   },
 ];
 

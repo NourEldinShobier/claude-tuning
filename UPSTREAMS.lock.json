@@ -62,11 +62,25 @@
     "license": "MIT",
     "ours": "The setup writes the rule that the graph misses callers with indirect types, so counts are confirmed with a text search."
   },
-  "webclaw": {
-    "repo": "https://github.com/0xMassi/webclaw",
-    "version": "0.7.0",
-    "commit": "c023eb99aecbb98b78d25b352d82c757e3fe934d",
-    "license": "AGPL-3.0",
-    "ours": "Setup downloads its official release binaries into ~/.local/bin and registers webclaw-mcp with Claude Code (user scope). An existing webclaw registration (Docker, a custom path) is kept."
+  "deepseek-search": {
+    "repo": "https://github.com/NourEldinShobier/deepseek-search",
+    "version": "0.1.0",
+    "commit": "f722e976b1f55ec0ce77a072c3cfbb540ebe74dc",
+    "license": "MIT",
+    "ours": "Ours. Separate repo so it can be installed alone."
+  },
+  "toolgate": {
+    "repo": "https://github.com/NourEldinShobier/toolgate",
+    "version": "0.17.1",
+    "commit": "11aa21e4e3381b7f8aa8d4b4d442380e989ab52c",
+    "license": "MIT",
+    "ours": "Our fork of RiskAverseTech/toolgate (see its UPSTREAM.lock.json): built-in risk questions can be turned off, dist/ is committed so it installs from GitHub, and the doctor works on Windows. Setup installs the injection-only policy (when ~/.toolgate/toolgate.yaml is missing) and its Claude Code hooks."
+  },
+  "jev-seo": {
+    "repo": "https://github.com/AgriciDaniel/jev-seo",
+    "version": "0.1.1",
+    "commit": "55a184a3b0d09565a4c84268f725a47784e62528",
+    "license": "MIT",
+    "ours": "Setup clones it into ~/.claude/skills/jev-seo at the pinned commit and installs its Python requirements for the current user."
   }
 }

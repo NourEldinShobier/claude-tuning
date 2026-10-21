@@ -27,7 +27,7 @@ Setting the API keys is the only step you do yourself.
 |---|---|---|
 | [Bun](https://bun.sh) | Yes | Installed by `/claude-tuning:tune` if missing |
 | Claude Code 2.1.274+ | For fast-jev-compaction | `claude update` |
-| `SERPER_API_KEY` | For web search | Free tier at [serper.dev](https://serper.dev). Scraping and crawling work without it |
+| `DEEPSEEK_API_KEY` | For web search | [platform.deepseek.com](https://platform.deepseek.com/api_keys); $0.75 per 1,000 searches or page reads. Without it Claude uses its built-in web search |
 | `JINA_API_KEY` | Optional | stash uses it to load URLs. Free at [jina.ai](https://jina.ai/?sui=apikey) |
 | `TYPESAFE_API_KEY` | Optional | Turns on the Jev features below. [console.typesafe.ai](https://console.typesafe.ai/settings/keys) |
 
@@ -46,7 +46,7 @@ Setting the API keys is the only step you do yourself.
 |---|---|
 | [rtk](https://github.com/rtk-ai/rtk) | Compresses shell output before Claude reads it: up to 90% less. Installed with its official installer if missing |
 | [stash](https://github.com/NourEldinShobier/stash) (ours) | Keeps big outputs in a local search index; Claude pulls back only what it needs |
-| [webclaw](https://github.com/0xMassi/webclaw) | Web search, scraping, crawling and extraction as clean markdown, over MCP. Installed from its release binaries if missing |
+| [deepseek-search](https://github.com/NourEldinShobier/deepseek-search) (ours) | Web search and page reading through DeepSeek, used instead of the built-in WebSearch/WebFetch, which stay as a fallback |
 | [ponytail](https://github.com/DietrichGebert/ponytail) | Keeps code minimal |
 | [i-have-adhd](https://github.com/ayghri/i-have-adhd) | Short answers that lead with the next action |
 | Tool rules in `~/.claude/CLAUDE.md` | Tell Claude when to use the tools above |
@@ -55,7 +55,9 @@ Setting the API keys is the only step you do yourself.
 | [quicksilver](https://github.com/UditAkhourii/quicksilver) (Jev) | Jev picks the files, log lines or items that matter, so Claude reads only those |
 | [compact-adviser](https://github.com/kunchenguid/compact-adviser) (Jev) | Compacts on its own at a finished checkpoint, not mid-task. Confirm once with `/compact-adviser auto` |
 | [jev-steer-or-queue](https://github.com/NourEldinShobier/Jev_steer_or_queue) (Jev) | Decides whether a message you send mid-turn steers, queues or stops the task |
-| Settings | 700k auto-compact window, function hooks on (for compaction), the code-graph and rtk hooks, and auto-update for claude-tuning and stash |
+| [toolgate](https://github.com/NourEldinShobier/toolgate) (Jev) | Stops tool calls that follow prompt-injected instructions; everything else runs |
+| [jev-seo](https://github.com/AgriciDaniel/jev-seo) (Jev) | `/jev-seo <url>`: live SEO audit with PDF, XLSX and Markdown reports. Needs Python; PDFs need Pango |
+| Settings | 700k auto-compact window, function hooks on (for compaction), the code-graph and rtk hooks, and auto-update for claude-tuning, stash and deepseek-search |
 
 Your existing settings are kept. Backups: `settings.json.bak`, `CLAUDE.md.bak`.
 
@@ -81,7 +83,7 @@ Running setup twice is safe. The second run changes nothing.
 | To turn off | Do this |
 |---|---|
 | rtk for one command | Run it as `rtk bypass <command>` |
-| One part | `claude plugin disable stash@stash` (or `ponytail@ponytail`, …); `claude mcp remove -s user webclaw` |
+| One part | `claude plugin disable stash@stash` (or `ponytail@ponytail`, `deepseek-search@deepseek-search`, …); toolgate: `toolgate uninstall` |
 | All of it | `claude plugin disable claude-tuning@claude-tuning` |
 
 ## Tools we use
@@ -92,7 +94,7 @@ We copy no third-party code. Each tool installs from its own repo at a pinned ve
 |---|---|---|---|---|
 | [rtk](https://github.com/rtk-ai/rtk) | Compresses shell output: git, tests, builds, docker, kubectl, package managers and more | Up to 90% less output | Apache-2.0 | Installed by setup if missing, with its hook |
 | [stash](https://github.com/NourEldinShobier/stash) (ours) | Keeps big outputs, files and pages in a local search index. Claude pulls back only what it needs, ranked by Jev. | 91 KB of git history came back as 9.7 KB (89% less) | MIT | Installed by setup; install alone: `stash@stash` |
-| [webclaw](https://github.com/0xMassi/webclaw) | Web search (via Serper), page scraping, crawling, sitemap mapping and batch extraction as clean markdown | No published token numbers; strips navigation and page clutter | AGPL-3.0 | Installed by setup if missing; MCP registered |
+| [deepseek-search](https://github.com/NourEldinShobier/deepseek-search) (ours) | DeepSeek Search and Fetch: ranked results with ~700-character summaries, parallel multi-query search, paged Markdown pages | Summaries instead of whole pages; DeepSeek's escaped punctuation stripped | MIT | Installed by setup; its hook sends WebSearch/WebFetch to it |
 | [ponytail](https://github.com/DietrichGebert/ponytail) | Makes Claude write the smallest code that works | 54% less code, 22% fewer tokens, 20% cheaper, 27% faster | MIT | Installed by setup |
 | [i-have-adhd](https://github.com/ayghri/i-have-adhd) | Answers lead with the next action: numbered steps, no filler | No published numbers; shorter answers | MIT | Installed by setup |
 | [codebase-memory-mcp](https://github.com/DeusData/codebase-memory-mcp) | Code graph: "where is X defined, who calls X" without reading whole files | 120x fewer tokens (3.4k vs 412k over 5 queries) | MIT | Installed by setup if missing |
@@ -100,6 +102,8 @@ We copy no third-party code. Each tool installs from its own repo at a pinned ve
 | [quicksilver](https://github.com/UditAkhourii/quicksilver) | Jev filters, labels and ranks many files, log lines or items, so Claude reads only the matches | 86% fewer Claude tokens on 12 tasks, up to 20x faster | MIT | Installed by setup; the tool rules say when to use it |
 | [compact-adviser](https://github.com/kunchenguid/compact-adviser) | Jev picks a finished checkpoint and runs /compact there | No published token numbers; avoids compacting mid-task | MIT | Installed by setup in auto mode |
 | [jev-steer-or-queue](https://github.com/NourEldinShobier/Jev_steer_or_queue) | Jev routes mid-turn messages: steer, queue until the turn ends, or stop | No token numbers; 450–650 ms per mid-turn message, ~90 ms per tool hook (our Rust port) | MIT | Our fork; installed by setup in shadow mode |
+| [toolgate](https://github.com/NourEldinShobier/toolgate) | Jev checks each tool call before it runs; here only for prompt injection | ~0.4 s per gated call | MIT | Our fork; installed by setup with the injection-only policy |
+| [jev-seo](https://github.com/AgriciDaniel/jev-seo) | Crawls a site, runs 52 checks and Jev page questions, renders reports | Not a token saver; an SEO tool | MIT | Cloned into `~/.claude/skills` by setup |
 
 Gains for stash are our own measurements. Gains for the other tools come from their own READMEs and benchmarks. They measure different things, so the numbers don't add up to one total. Pinned versions are in [UPSTREAMS.md](UPSTREAMS.md).
 
@@ -107,8 +111,8 @@ Gains for stash are our own measurements. Gains for the other tools come from th
 
 | Service | Used by |
 |---|---|
-| [TypeSafe Jev](https://typesafe.ai) | Skill suggestions, model routing, compaction, stash ranking |
-| [Serper](https://serper.dev) | webclaw search |
+| [TypeSafe Jev](https://typesafe.ai) | Skill suggestions, model routing, compaction, stash ranking, quicksilver, toolgate, jev-seo |
+| [DeepSeek](https://api-docs.deepseek.com/guides/search/) | deepseek-search |
 | [Jina](https://jina.ai) | stash URL loading |
 
 **Runtime:** [Bun](https://bun.sh) runs our code. Only Bun's built-ins are used: SQLite, fetch and spawn.
