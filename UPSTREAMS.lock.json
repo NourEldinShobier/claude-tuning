@@ -1,0 +1,72 @@
+{
+  "stash": {
+    "repo": "https://github.com/NourEldinShobier/stash",
+    "version": "0.2.0",
+    "commit": "d13617983afbbc7876f5f08f90fb3507bb60f651",
+    "license": "MIT",
+    "ours": "Ours. Separate repo so it can be installed alone."
+  },
+  "ponytail": {
+    "repo": "https://github.com/DietrichGebert/ponytail",
+    "version": "4.10.0",
+    "commit": "e3ba2aa6f1e6f0bc4d69eb09c9f0d0a93af56156",
+    "license": "MIT",
+    "ours": null
+  },
+  "i-have-adhd": {
+    "repo": "https://github.com/ayghri/i-have-adhd",
+    "version": "0.3.0",
+    "commit": "6f1f982d0a47c65899af3c5a7450b7098bc65325",
+    "license": "MIT",
+    "ours": null
+  },
+  "fast-jev-compaction": {
+    "repo": "https://github.com/tamaratran/fast-jev-compaction",
+    "version": "0.3.0",
+    "commit": "e3f262a7f4d42bd8dd32ced30d26176f7cb545b0",
+    "license": "MIT",
+    "ours": "Setup turns on function hooks (CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1), which it needs."
+  },
+  "quicksilver": {
+    "repo": "https://github.com/UditAkhourii/quicksilver",
+    "version": "0.1.0",
+    "commit": "5d6fe5cd4f9d9a9d086a81c797e59b77c0724043",
+    "license": "MIT",
+    "ours": "The tool rules tell Claude when to reach for it."
+  },
+  "compact-adviser": {
+    "repo": "https://github.com/kunchenguid/compact-adviser",
+    "version": "0.1.13",
+    "commit": "7dc0693ea7f209067453f2874d02afc2fe83b128",
+    "license": "MIT",
+    "ours": "Setup installs it in auto mode; run /compact-adviser auto once to confirm. Uses the function hooks setup already turns on."
+  },
+  "jev-steer-or-queue": {
+    "repo": "https://github.com/Larkspur-Wang/Jev_steer_or_queue",
+    "version": "0.2.0",
+    "commit": "3924e8841d6ef8d853d6eb22b7283541cf3d6357",
+    "license": "MIT",
+    "ours": "Installed in its default shadow mode (logs decisions only); set its mode to active in /plugin to queue and stop for real."
+  },
+  "rtk": {
+    "repo": "https://github.com/rtk-ai/rtk",
+    "version": "0.49.0",
+    "commit": "b1c0dc00649c50fbe8930f849c800d4d6ca12091",
+    "license": "Apache-2.0",
+    "ours": "Setup installs it with its official installer and adds its Claude Code hook (rtk hook claude) for Bash and PowerShell."
+  },
+  "codebase-memory": {
+    "repo": "https://github.com/DeusData/codebase-memory-mcp",
+    "version": "0.11.0",
+    "commit": "8972ea69c6ad94b1ef1d4ffbf0a92d78d2db1798",
+    "license": "MIT",
+    "ours": "The setup writes the rule that the graph misses callers with indirect types, so counts are confirmed with a text search."
+  },
+  "webclaw": {
+    "repo": "https://github.com/0xMassi/webclaw",
+    "version": "0.6.23",
+    "commit": "aadf8ed1ef6102d4fccabef9680fa894c28a19f3",
+    "license": "AGPL-3.0",
+    "ours": "Setup downloads its official release binaries into ~/.local/bin and registers webclaw-mcp with Claude Code (user scope). An existing webclaw registration (Docker, a custom path) is kept."
+  }
+}

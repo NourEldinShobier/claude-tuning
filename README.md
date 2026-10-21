@@ -37,7 +37,7 @@ Setting the API keys is the only step you do yourself.
 
 | Part | What it does | Result |
 |---|---|---|
-| **Skill suggestions** (Jev) | Tells Claude which of its skills fits your request. | 12 of 14 test prompts right |
+| **Skill suggestions** (Jev) | Tells Claude which of its skills fits your request. | 14 of 17 test prompts right |
 | **Model routing** (Jev) | Moves hard coding subagent tasks to Opus. Never downgrades, never overrides a model Claude chose. | 14 of 14 test tasks right |
 
 **Added by `/claude-tuning:tune`:**

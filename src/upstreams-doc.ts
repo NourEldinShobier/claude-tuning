@@ -32,3 +32,10 @@ const lines = [
 
 await Bun.write(`${import.meta.dir}/../UPSTREAMS.md`, `${lines.join('\n')}`);
 console.log(`UPSTREAMS.md written (${UPSTREAMS.length} entries)`);
+
+// Machine-readable lock: the exact upstream commit each tool was tested at, and what we change about it.
+const lock = Object.fromEntries(
+  UPSTREAMS.map((u) => [u.id, { repo: `https://github.com/${u.repo}`, version: u.version, commit: u.commit ?? null, license: u.license, ours: u.ours ?? null }])
+);
+await Bun.write(`${import.meta.dir}/../UPSTREAMS.lock.json`, `${JSON.stringify(lock, null, 2)}\n`);
+console.log('UPSTREAMS.lock.json written');

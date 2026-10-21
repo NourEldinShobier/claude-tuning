@@ -84,8 +84,10 @@ export async function suggest(request: string, roster: Skill[], signal: AbortSig
   if (trace) trace.fits = Object.fromEntries(shortlist.map((s, i) => [s.id, +fits[i]!.toFixed(2)]));
   const w = a2.which;
   const pick = w?.type === 'choice' ? Number(w.choice.slice(1)) : -1;
-  // The chosen skill itself must fit, not just some candidate.
-  return (fits[pick] ?? 0) >= FITS ? (shortlist[pick]?.id ?? null) : null;
+  // The chosen skill must fit; if it doesn't, the candidate that fits best may stand in.
+  if ((fits[pick] ?? 0) >= FITS) return shortlist[pick]?.id ?? null;
+  const best = fits.indexOf(Math.max(...fits));
+  return fits[best]! >= FITS ? (shortlist[best]?.id ?? null) : null;
 }
 
 /**
