@@ -26,6 +26,8 @@ const lines = [
   '',
   'stash is written by us, from scratch, and lives in its own repository so it can be installed alone. This bundle pins it like any other upstream.',
   '',
+  'jev-steer-or-queue is installed from our fork. The fork keeps an `UPSTREAM.lock.json` naming the upstream commit it is synced with and what we changed, so it can be updated from upstream later.',
+  '',
   'Anything written in this repository is ours and MIT-licensed. Where an idea came from someone else, the file that implements it says so.',
   '',
 ];

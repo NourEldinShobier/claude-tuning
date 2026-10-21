@@ -42,11 +42,11 @@
     "ours": "Setup installs it in auto mode; run /compact-adviser auto once to confirm. Uses the function hooks setup already turns on."
   },
   "jev-steer-or-queue": {
-    "repo": "https://github.com/Larkspur-Wang/Jev_steer_or_queue",
-    "version": "0.2.0",
-    "commit": "3924e8841d6ef8d853d6eb22b7283541cf3d6357",
+    "repo": "https://github.com/NourEldinShobier/Jev_steer_or_queue",
+    "version": "0.3.0",
+    "commit": "3a364c13f83dc5a22f426000181ce918a1e3bde9",
     "license": "MIT",
-    "ours": "Installed in its default shadow mode (logs decisions only); set its mode to active in /plugin to queue and stop for real."
+    "ours": "Our fork of Larkspur-Wang/Jev_steer_or_queue (see its UPSTREAM.lock.json): a Rust router (~90 ms per hook, works on Windows; upstream crashed there) with the Python one as fallback. Installed in shadow mode (logs decisions only); set its mode to active in /plugin to queue and stop for real."
   },
   "rtk": {
     "repo": "https://github.com/rtk-ai/rtk",
