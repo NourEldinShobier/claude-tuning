@@ -21,11 +21,14 @@ export interface Latest {
   url?: string;
 }
 
+/** Version from a release tag: 'v1.2.3' and 'name-v1.2.3' both give '1.2.3'. */
+export const tagVersion = (tag: string) => tag.match(/\d+\.\d+(?:\.\d+)?(?:[-+][\w.]+)?$/)?.[0] ?? tag;
+
 export async function latest(repo: string): Promise<Latest> {
   const release = await api<{ tag_name: string; published_at: string; html_url: string }>(`${repo}/releases/latest`);
-  if (release) return { version: release.tag_name.replace(/^v/, ''), published: release.published_at.slice(0, 10), url: release.html_url };
+  if (release) return { version: tagVersion(release.tag_name), published: release.published_at.slice(0, 10), url: release.html_url };
   const tags = await api<{ name: string; commit: { sha: string } }[]>(`${repo}/tags`);
-  if (tags?.length) return { version: tags[0]!.name.replace(/^v/, ''), commit: tags[0]!.commit.sha, url: `https://github.com/${repo}/tags` };
+  if (tags?.length) return { version: tagVersion(tags[0]!.name), commit: tags[0]!.commit.sha, url: `https://github.com/${repo}/tags` };
   const commits = await api<{ sha: string; commit: { committer: { date: string } } }[]>(`${repo}/commits?per_page=1`);
   if (commits?.length) return { commit: commits[0]!.sha, published: commits[0]!.commit.committer.date.slice(0, 10), url: `https://github.com/${repo}/commits` };
   return {};

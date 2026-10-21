@@ -56,8 +56,8 @@ export const UPSTREAMS: Upstream[] = [
     kind: 'plugin',
     marketplace: 'ponytail',
     plugin: 'ponytail',
-    version: '4.10.0',
-    commit: 'e3ba2aa6f1e6f0bc4d69eb09c9f0d0a93af56156',
+    version: '5.3.2',
+    commit: '16352ac229eb08a9598dcae48fe9f2b342567d86',
     why: 'Pushes the agent to the simplest solution that works, and to reuse what the repo already has.',
   },
   {

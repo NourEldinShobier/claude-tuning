@@ -57,7 +57,7 @@ describe('model routing', () => {
 
 import { desired, merge, withRules, type Settings } from '../src/settings';
 import { UPSTREAMS, plugins } from '../src/upstreams';
-import { isBehind } from '../src/check-upstreams';
+import { isBehind, tagVersion } from '../src/check-upstreams';
 
 describe('settings merge', () => {
   const want = desired({ codebaseMemory: false });
@@ -178,6 +178,12 @@ describe('upstreams', () => {
     expect(isBehind(u, { version: '99.0.0' })).toBe(true);
     expect(isBehind({ ...u, version: '1.0', commit: 'abc1234' }, { commit: 'abc12345678' })).toBe(false);
     expect(isBehind({ ...u, version: '1.0', commit: 'abc1234' }, { commit: 'def4567' })).toBe(true);
+  });
+
+  test('release tags with a name prefix still compare by version', () => {
+    expect(tagVersion('v1.2.3')).toBe('1.2.3');
+    expect(tagVersion('compact-adviser-v0.1.13')).toBe('0.1.13');
+    expect(tagVersion('0.6.23')).toBe('0.6.23');
   });
 });
 
