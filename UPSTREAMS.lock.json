@@ -64,8 +64,8 @@
   },
   "deepseek-search": {
     "repo": "https://github.com/NourEldinShobier/deepseek-search",
-    "version": "0.1.0",
-    "commit": "f722e976b1f55ec0ce77a072c3cfbb540ebe74dc",
+    "version": "0.1.2",
+    "commit": "d64f289a9cd4e839bdf393d024175ba32f049f27",
     "license": "MIT",
     "ours": "Ours. Separate repo so it can be installed alone."
   },
