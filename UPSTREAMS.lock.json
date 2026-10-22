@@ -68,12 +68,5 @@
     "commit": "11aa21e4e3381b7f8aa8d4b4d442380e989ab52c",
     "license": "MIT",
     "ours": "Fork of RiskAverseTech/toolgate (see its UPSTREAM.lock.json): built-in risk questions can be turned off, dist/ is committed so it installs from GitHub, and the doctor works on Windows. Setup installs the injection-only policy (when ~/.toolgate/toolgate.yaml is missing) and its Claude Code hooks."
-  },
-  "jev-seo": {
-    "repo": "https://github.com/AgriciDaniel/jev-seo",
-    "version": "0.1.1",
-    "commit": "55a184a3b0d09565a4c84268f725a47784e62528",
-    "license": "MIT",
-    "ours": "Setup clones it into ~/.claude/skills/jev-seo at the pinned commit and installs its Python requirements for the current user."
   }
 }

@@ -36,7 +36,6 @@ export interface Upstream {
 const TOOLGATE = '11aa21e4e3381b7f8aa8d4b4d442380e989ab52c';
 /** npm 12 refuses git packages unless asked; the fork ships dist/, so no install scripts are needed. */
 const toolgateNpm = `npm install -g --allow-git=all github:NourEldinShobier/toolgate#${TOOLGATE}`;
-const JEV_SEO = '55a184a3b0d09565a4c84268f725a47784e62528';
 
 export const UPSTREAMS: Upstream[] = [
   {
@@ -169,22 +168,6 @@ export const UPSTREAMS: Upstream[] = [
       win32: `${toolgateNpm}; if ($?) { $d = Join-Path $env:USERPROFILE '.toolgate'; New-Item -ItemType Directory -Force $d | Out-Null; $p = Join-Path $d 'toolgate.yaml'; if (-not (Test-Path $p)) { Copy-Item (Join-Path (npm root -g) '@riskaverse/toolgate/examples/injection-only.yaml') $p }; toolgate install }`,
     },
     bin: 'toolgate',
-  },
-  {
-    id: 'jev-seo',
-    repo: 'AgriciDaniel/jev-seo',
-    license: 'MIT',
-    kind: 'skill',
-    version: '0.1.1',
-    commit: JEV_SEO,
-    why: 'Skill: live SEO audit of a site from its homepage URL, judged by Jev, with PDF, XLSX and Markdown reports (/jev-seo <url>). Needs Python 3.10+, TYPESAFE_API_KEY, and the Pango library for PDFs (see its README; on Windows, MSYS2 pango plus WEASYPRINT_DLL_DIRECTORIES).',
-    ours: 'Setup clones it into ~/.claude/skills/jev-seo at the pinned commit and installs its Python requirements for the current user.',
-    install: {
-      darwin: `d=~/.claude/skills/jev-seo; git clone -q https://github.com/AgriciDaniel/jev-seo "$d" && git -C "$d" checkout -q ${JEV_SEO} && python3 -m pip install -q --user -r "$d/requirements.txt"`,
-      linux: `d=~/.claude/skills/jev-seo; git clone -q https://github.com/AgriciDaniel/jev-seo "$d" && git -C "$d" checkout -q ${JEV_SEO} && python3 -m pip install -q --user -r "$d/requirements.txt"`,
-      win32: `$d = Join-Path $env:USERPROFILE '.claude/skills/jev-seo'; git clone -q https://github.com/AgriciDaniel/jev-seo $d; if ($?) { git -C $d checkout -q ${JEV_SEO}; python -m pip install -q --user -r (Join-Path $d 'requirements.txt') }`,
-    },
-    path: '.claude/skills/jev-seo',
   },
 ];
 

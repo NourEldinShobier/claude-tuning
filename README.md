@@ -54,7 +54,6 @@ Setting the API keys is the only step you do yourself.
 | [compact-adviser](https://github.com/kunchenguid/compact-adviser) (Jev) | Compacts on its own at a finished checkpoint, not mid-task. Confirm once with `/compact-adviser auto` |
 | [jev-steer-or-queue](https://github.com/NourEldinShobier/Jev_steer_or_queue) (Jev) | Decides whether a message you send mid-turn steers, queues or stops the task |
 | [toolgate](https://github.com/NourEldinShobier/toolgate) (Jev) | Stops tool calls that follow prompt-injected instructions; everything else runs |
-| [jev-seo](https://github.com/AgriciDaniel/jev-seo) (Jev) | `/jev-seo <url>`: live SEO audit with PDF, XLSX and Markdown reports. Needs Python; PDFs need Pango |
 | Settings | 700k auto-compact window, function hooks on (for compaction), the code-graph and rtk hooks, and auto-update for claude-tuning and stash |
 
 Your existing settings are kept. Backups: `settings.json.bak`, `CLAUDE.md.bak`.
@@ -100,7 +99,6 @@ We copy no third-party code. Each tool installs from its own repo at a pinned ve
 | [compact-adviser](https://github.com/kunchenguid/compact-adviser) | Jev picks a finished checkpoint and runs /compact there | No published token numbers; avoids compacting mid-task | MIT | Installed by setup in auto mode |
 | [jev-steer-or-queue](https://github.com/NourEldinShobier/Jev_steer_or_queue) | Jev routes mid-turn messages: steer, queue until the turn ends, or stop | No token numbers; 450–650 ms per mid-turn message, ~90 ms per tool hook (Rust port in the fork) | MIT | Fork; installed by setup in shadow mode |
 | [toolgate](https://github.com/NourEldinShobier/toolgate) | Jev checks each tool call before it runs; here only for prompt injection | ~0.4 s per gated call | MIT | Fork; installed by setup with the injection-only policy |
-| [jev-seo](https://github.com/AgriciDaniel/jev-seo) | Crawls a site, runs 52 checks and Jev page questions, renders reports | Not a token saver; an SEO tool | MIT | Cloned into `~/.claude/skills` by setup |
 
 Gains for stash were measured in this repo. Gains for the other tools come from their own READMEs and benchmarks. They measure different things, so the numbers don't add up to one total. Pinned versions are in [UPSTREAMS.md](UPSTREAMS.md).
 
@@ -108,7 +106,7 @@ Gains for stash were measured in this repo. Gains for the other tools come from 
 
 | Service | Used by |
 |---|---|
-| [TypeSafe Jev](https://typesafe.ai) | Skill suggestions, model routing, compaction, stash ranking, quicksilver, toolgate, jev-seo |
+| [TypeSafe Jev](https://typesafe.ai) | Skill suggestions, model routing, compaction, stash ranking, quicksilver, toolgate |
 | [Jina](https://jina.ai) | stash URL loading |
 
 **Runtime:** [Bun](https://bun.sh) runs this code. Only Bun's built-ins are used: SQLite, fetch and spawn.
