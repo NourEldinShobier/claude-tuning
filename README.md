@@ -27,7 +27,6 @@ Setting the API keys is the only step you do yourself.
 |---|---|---|
 | [Bun](https://bun.sh) | Yes | Installed by `/claude-tuning:tune` if missing |
 | Claude Code 2.1.274+ | For fast-jev-compaction | `claude update` |
-| `JINA_API_KEY` | Optional | stash uses it to load URLs. Free at [jina.ai](https://jina.ai/?sui=apikey) |
 | `TYPESAFE_API_KEY` | Optional | Turns on the Jev features below. [console.typesafe.ai](https://console.typesafe.ai/settings/keys) |
 
 ## What you get
@@ -64,7 +63,6 @@ Everything still works:
 
 - Skill suggestions and model routing turn off.
 - Compaction falls back to Claude Code's own; compact-adviser, jev-steer-or-queue and quicksilver stay idle.
-- stash ranks results without Jev.
 
 ## Setup options
 
@@ -90,7 +88,7 @@ We copy no third-party code. Each tool installs from its own repo at a pinned ve
 | Tool | What it does | Reported gain | Licence | How we use it |
 |---|---|---|---|---|
 | [rtk](https://github.com/rtk-ai/rtk) | Compresses shell output: git, tests, builds, docker, kubectl, package managers and more | Up to 90% less output | Apache-2.0 | Installed by setup if missing, with its hook |
-| [stash](https://github.com/NourEldinShobier/stash) | Keeps big outputs, files and pages in a local search index. Claude pulls back only what it needs, ranked by Jev. | 91 KB of git history came back as 9.7 KB (89% less) | MIT | Installed by setup; install alone: `stash@stash` |
+| [stash](https://github.com/NourEldinShobier/stash) | Keeps big outputs and files in a local search index. Claude pulls back only what it needs. Local only: no API keys, no network. | 91 KB of git history came back as 9.7 KB (89% less) | MIT | Installed by setup; install alone: `stash@stash` |
 | [ponytail](https://github.com/DietrichGebert/ponytail) | Makes Claude write the smallest code that works | 54% less code, 22% fewer tokens, 20% cheaper, 27% faster | MIT | Installed by setup |
 | [i-have-adhd](https://github.com/ayghri/i-have-adhd) | Answers lead with the next action: numbered steps, no filler | No published numbers; shorter answers | MIT | Installed by setup |
 | [codebase-memory-mcp](https://github.com/DeusData/codebase-memory-mcp) | Code graph: "where is X defined, who calls X" without reading whole files | 120x fewer tokens (3.4k vs 412k over 5 queries) | MIT | Installed by setup if missing |
@@ -106,8 +104,7 @@ Gains for stash were measured in this repo. Gains for the other tools come from 
 
 | Service | Used by |
 |---|---|
-| [TypeSafe Jev](https://typesafe.ai) | Skill suggestions, model routing, compaction, stash ranking, quicksilver, toolgate |
-| [Jina](https://jina.ai) | stash URL loading |
+| [TypeSafe Jev](https://typesafe.ai) | Skill suggestions, model routing, compaction, quicksilver, toolgate |
 
 **Runtime:** [Bun](https://bun.sh) runs this code. Only Bun's built-ins are used: SQLite, fetch and spawn.
 

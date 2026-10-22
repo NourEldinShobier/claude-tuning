@@ -1,8 +1,8 @@
 {
   "stash": {
     "repo": "https://github.com/NourEldinShobier/stash",
-    "version": "0.2.0",
-    "commit": "d13617983afbbc7876f5f08f90fb3507bb60f651",
+    "version": "0.3.0",
+    "commit": "aebecb356fceee4f21fe59a2990fbd9570fd7af2",
     "license": "MIT",
     "ours": "Separate repo so it can be installed alone."
   },

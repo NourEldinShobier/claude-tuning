@@ -45,9 +45,9 @@ export const UPSTREAMS: Upstream[] = [
     kind: 'plugin',
     marketplace: 'stash',
     plugin: 'stash',
-    version: '0.2.0',
-    commit: 'd13617983afbbc7876f5f08f90fb3507bb60f651',
-    why: 'MCP server that keeps big outputs, files and pages in a local search index and returns only what Claude asks for, ranked by Jev.',
+    version: '0.3.0',
+    commit: 'aebecb356fceee4f21fe59a2990fbd9570fd7af2',
+    why: 'MCP server that keeps big outputs and files in a local search index and returns only what Claude asks for. Local only.',
     ours: 'Separate repo so it can be installed alone.',
   },
   {

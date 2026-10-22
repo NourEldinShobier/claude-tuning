@@ -6,7 +6,7 @@ Generated from `src/upstreams.ts` by `bun run upstreams:doc`. Check for newer re
 
 | Tool | Source | Licence | Pinned | What it does | What claude-tuning changes |
 |---|---|---|---|---|---|
-| stash | [NourEldinShobier/stash](https://github.com/NourEldinShobier/stash) | MIT | 0.2.0 (`d136179`) | MCP server that keeps big outputs, files and pages in a local search index and returns only what Claude asks for, ranked by Jev. | Separate repo so it can be installed alone. |
+| stash | [NourEldinShobier/stash](https://github.com/NourEldinShobier/stash) | MIT | 0.3.0 (`aebecb3`) | MCP server that keeps big outputs and files in a local search index and returns only what Claude asks for. Local only. | Separate repo so it can be installed alone. |
 | ponytail | [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) | MIT | 5.3.2 (`16352ac`) | Pushes the agent to the simplest solution that works, and to reuse what the repo already has. | — |
 | i-have-adhd | [ayghri/i-have-adhd](https://github.com/ayghri/i-have-adhd) | MIT | 0.4.1 (`1ecea19`) | Answers lead with the next action, numbered steps, no preamble. Shorter output is also cheaper output. | — |
 | fast-jev-compaction | [tamaratran/fast-jev-compaction](https://github.com/tamaratran/fast-jev-compaction) | MIT | 0.3.0 (`e3f262a`) | Replaces Claude Code's summarising compaction: Jev picks which messages to keep, and kept messages stay word for word. Needs Claude Code 2.1.274+ and TYPESAFE_API_KEY; without them the built-in compaction runs. | Setup turns on function hooks (CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1), which it needs. |
