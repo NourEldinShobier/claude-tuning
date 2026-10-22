@@ -22,7 +22,7 @@ describe('roster', () => {
   // Needs this machine's own skills and plugins.
   test.skipIf(!existsSync(join(homedir(), '.claude', 'skills')))('reads personal and plugin skills', () => {
     const roster = loadRoster(process.cwd());
-    expect(roster.length).toBeGreaterThan(100);
+    expect(roster.length).toBeGreaterThan(loadRoster(process.cwd(), '/nonexistent').length);
     expect(roster.some((s) => s.id === 'claude-tuning:tune')).toBe(true);
   });
 });
@@ -201,7 +201,7 @@ describe('tool install', () => {
     expect(u.install!.linux).toContain('[ -f ~/.toolgate/toolgate.yaml ] || cp');
     expect(u.install!.linux).toEndWith('toolgate install');
     expect(u.install!.win32).toContain("if (-not (Test-Path $p))");
-    expect(u.install!.win32).toContain('--allow-git=all github:NourEldinShobier/toolgate#');
+    expect(u.install!.win32).toContain('codeload.github.com/NourEldinShobier/toolgate/tar.gz/');
   });
 
   test('every tool can be detected and installs on every platform', () => {

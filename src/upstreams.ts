@@ -33,9 +33,9 @@ export interface Upstream {
   path?: string;
 }
 
-const TOOLGATE = '11aa21e4e3381b7f8aa8d4b4d442380e989ab52c';
-/** npm 12 refuses git packages unless asked; the fork ships dist/, so no install scripts are needed. */
-const toolgateNpm = `npm install -g --allow-git=all github:NourEldinShobier/toolgate#${TOOLGATE}`;
+const TOOLGATE = 'd3fcd121fc1c1ed0de5d7d357d749027c1a1b6f6';
+/** The GitHub tarball, not a git dependency: npm's git install can leave a dangling symlink in node_modules. The fork ships dist/, so no build scripts run. */
+const toolgateNpm = `npm install -g https://codeload.github.com/NourEldinShobier/toolgate/tar.gz/${TOOLGATE}`;
 
 export const UPSTREAMS: Upstream[] = [
   {

@@ -65,7 +65,7 @@
   "toolgate": {
     "repo": "https://github.com/NourEldinShobier/toolgate",
     "version": "0.17.1",
-    "commit": "11aa21e4e3381b7f8aa8d4b4d442380e989ab52c",
+    "commit": "d3fcd121fc1c1ed0de5d7d357d749027c1a1b6f6",
     "license": "MIT",
     "ours": "Fork of RiskAverseTech/toolgate (see its UPSTREAM.lock.json): built-in risk questions can be turned off, dist/ is committed so it installs from GitHub, and the doctor works on Windows. Setup installs the injection-only policy (when ~/.toolgate/toolgate.yaml is missing) and its Claude Code hooks."
   }

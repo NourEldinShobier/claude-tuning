@@ -80,7 +80,7 @@ Running setup twice is safe. The second run changes nothing.
 | To turn off | Do this |
 |---|---|
 | rtk for one command | Run it as `rtk bypass <command>` |
-| One part | `claude plugin disable stash@stash` (or `ponytail@ponytail`, …); toolgate: `toolgate uninstall` |
+| One part | `claude plugin disable stash@stash` (or `ponytail@ponytail`, …); toolgate: delete the hooks whose command contains `toolgate` from `~/.claude/settings.json`, then `npm uninstall -g @riskaverse/toolgate` |
 | All of it | `claude plugin disable claude-tuning@claude-tuning` |
 
 ## Tools we use
