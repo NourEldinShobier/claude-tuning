@@ -4,7 +4,7 @@
     "version": "0.2.0",
     "commit": "d13617983afbbc7876f5f08f90fb3507bb60f651",
     "license": "MIT",
-    "ours": "Ours. Separate repo so it can be installed alone."
+    "ours": "Separate repo so it can be installed alone."
   },
   "ponytail": {
     "repo": "https://github.com/DietrichGebert/ponytail",
@@ -46,7 +46,7 @@
     "version": "0.3.0",
     "commit": "3a364c13f83dc5a22f426000181ce918a1e3bde9",
     "license": "MIT",
-    "ours": "Our fork of Larkspur-Wang/Jev_steer_or_queue (see its UPSTREAM.lock.json): a Rust router (~90 ms per hook, works on Windows; upstream crashed there) with the Python one as fallback. Installed in shadow mode (logs decisions only); set its mode to active in /plugin to queue and stop for real."
+    "ours": "Fork of Larkspur-Wang/Jev_steer_or_queue (see its UPSTREAM.lock.json): a Rust router (~90 ms per hook, works on Windows; upstream crashed there) with the Python one as fallback. Installed in shadow mode (logs decisions only); set its mode to active in /plugin to queue and stop for real."
   },
   "rtk": {
     "repo": "https://github.com/rtk-ai/rtk",
@@ -62,19 +62,12 @@
     "license": "MIT",
     "ours": "The setup writes the rule that the graph misses callers with indirect types, so counts are confirmed with a text search."
   },
-  "deepseek-search": {
-    "repo": "https://github.com/NourEldinShobier/deepseek-search",
-    "version": "0.1.2",
-    "commit": "d64f289a9cd4e839bdf393d024175ba32f049f27",
-    "license": "MIT",
-    "ours": "Ours. Separate repo so it can be installed alone."
-  },
   "toolgate": {
     "repo": "https://github.com/NourEldinShobier/toolgate",
     "version": "0.17.1",
     "commit": "11aa21e4e3381b7f8aa8d4b4d442380e989ab52c",
     "license": "MIT",
-    "ours": "Our fork of RiskAverseTech/toolgate (see its UPSTREAM.lock.json): built-in risk questions can be turned off, dist/ is committed so it installs from GitHub, and the doctor works on Windows. Setup installs the injection-only policy (when ~/.toolgate/toolgate.yaml is missing) and its Claude Code hooks."
+    "ours": "Fork of RiskAverseTech/toolgate (see its UPSTREAM.lock.json): built-in risk questions can be turned off, dist/ is committed so it installs from GitHub, and the doctor works on Windows. Setup installs the injection-only policy (when ~/.toolgate/toolgate.yaml is missing) and its Claude Code hooks."
   },
   "jev-seo": {
     "repo": "https://github.com/AgriciDaniel/jev-seo",

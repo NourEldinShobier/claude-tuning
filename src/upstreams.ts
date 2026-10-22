@@ -49,7 +49,7 @@ export const UPSTREAMS: Upstream[] = [
     version: '0.2.0',
     commit: 'd13617983afbbc7876f5f08f90fb3507bb60f651',
     why: 'MCP server that keeps big outputs, files and pages in a local search index and returns only what Claude asks for, ranked by Jev.',
-    ours: 'Ours. Separate repo so it can be installed alone.',
+    ours: 'Separate repo so it can be installed alone.',
   },
   {
     id: 'ponytail',
@@ -120,7 +120,7 @@ export const UPSTREAMS: Upstream[] = [
     version: '0.3.0',
     commit: '3a364c13f83dc5a22f426000181ce918a1e3bde9',
     why: 'Jev decides whether a message sent mid-turn steers the running task, waits in a queue until the turn ends, or stops it. Needs TYPESAFE_API_KEY.',
-    ours: 'Our fork of Larkspur-Wang/Jev_steer_or_queue (see its UPSTREAM.lock.json): a Rust router (~90 ms per hook, works on Windows; upstream crashed there) with the Python one as fallback. Installed in shadow mode (logs decisions only); set its mode to active in /plugin to queue and stop for real.',
+    ours: 'Fork of Larkspur-Wang/Jev_steer_or_queue (see its UPSTREAM.lock.json): a Rust router (~90 ms per hook, works on Windows; upstream crashed there) with the Python one as fallback. Installed in shadow mode (logs decisions only); set its mode to active in /plugin to queue and stop for real.',
   },
   {
     id: 'rtk',
@@ -155,18 +155,6 @@ export const UPSTREAMS: Upstream[] = [
     bin: 'codebase-memory-mcp',
   },
   {
-    id: 'deepseek-search',
-    repo: 'NourEldinShobier/deepseek-search',
-    license: 'MIT',
-    kind: 'plugin',
-    marketplace: 'deepseek-search',
-    plugin: 'deepseek-search',
-    version: '0.1.2',
-    commit: 'd64f289a9cd4e839bdf393d024175ba32f049f27',
-    why: "Web search and page reading through DeepSeek's Search and Fetch APIs ($0.75 per 1,000 calls): ranked results with summaries, parallel multi-query search, paged Markdown pages. A hook sends WebSearch/WebFetch to it and lets the built-in tools run when DeepSeek has no key or fails. Needs DEEPSEEK_API_KEY.",
-    ours: 'Ours. Separate repo so it can be installed alone.',
-  },
-  {
     id: 'toolgate',
     repo: 'NourEldinShobier/toolgate',
     license: 'MIT',
@@ -174,7 +162,7 @@ export const UPSTREAMS: Upstream[] = [
     version: '0.17.1',
     commit: TOOLGATE,
     why: "Jev checks each tool call before it runs. Configured here to stop only prompt injection: calls that follow instructions from a web page, file or tool output instead of the user's task. Needs TYPESAFE_API_KEY.",
-    ours: 'Our fork of RiskAverseTech/toolgate (see its UPSTREAM.lock.json): built-in risk questions can be turned off, dist/ is committed so it installs from GitHub, and the doctor works on Windows. Setup installs the injection-only policy (when ~/.toolgate/toolgate.yaml is missing) and its Claude Code hooks.',
+    ours: 'Fork of RiskAverseTech/toolgate (see its UPSTREAM.lock.json): built-in risk questions can be turned off, dist/ is committed so it installs from GitHub, and the doctor works on Windows. Setup installs the injection-only policy (when ~/.toolgate/toolgate.yaml is missing) and its Claude Code hooks.',
     install: {
       darwin: `${toolgateNpm} && mkdir -p ~/.toolgate && { [ -f ~/.toolgate/toolgate.yaml ] || cp "$(npm root -g)/@riskaverse/toolgate/examples/injection-only.yaml" ~/.toolgate/toolgate.yaml; } && toolgate install`,
       linux: `${toolgateNpm} && mkdir -p ~/.toolgate && { [ -f ~/.toolgate/toolgate.yaml ] || cp "$(npm root -g)/@riskaverse/toolgate/examples/injection-only.yaml" ~/.toolgate/toolgate.yaml; } && toolgate install`,

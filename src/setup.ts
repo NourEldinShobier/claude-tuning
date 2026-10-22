@@ -186,7 +186,6 @@ async function main() {
 
   // 6. Keys, presence only.
   out(`\n${bold('API keys')}`);
-  out(`  DEEPSEEK_API_KEY  ${process.env.DEEPSEEK_API_KEY ? 'set' : 'not set — deepseek-search needs it (https://platform.deepseek.com/api_keys); until then Claude uses its built-in web search'}`);
   out(`  JINA_API_KEY      ${process.env.JINA_API_KEY ? 'set' : 'not set — optional; stash uses it to load URLs (free: https://jina.ai/?sui=apikey)'}`);
   out(`  TYPESAFE_API_KEY  ${process.env.TYPESAFE_API_KEY ? 'set' : 'not set — optional; turns on the Jev parts: skill suggestions, model routing, compaction, ranking, quicksilver, toolgate, jev-seo'}`);
 

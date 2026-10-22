@@ -21,13 +21,13 @@ const lines = [
   '- **MIT** and **Apache 2.0**: may be copied with their notices. We still install rather than copy, so updates stay upstream.',
   '- **None declared**: default copyright applies, so the code may not be copied or redistributed. Any such tool is installed from its own installer, exactly as its author publishes it.',
   '',
-  '## Ours',
+  '## Companion repos and forks',
   '',
-  'stash and deepseek-search are written by us, from scratch, and live in their own repositories so they can be installed alone. This bundle pins them like any other upstream.',
+  'stash is written from scratch for this bundle and lives in its own repository so it can be installed alone. This bundle pins it like any other upstream.',
   '',
-  'jev-steer-or-queue and toolgate are installed from our forks. Each fork keeps an `UPSTREAM.lock.json` naming the upstream commit it is synced with and what we changed, so it can be updated from upstream later.',
+  'jev-steer-or-queue and toolgate are installed from forks. Each fork keeps an `UPSTREAM.lock.json` naming the upstream commit it is synced with and what changed, so it can be updated from upstream later.',
   '',
-  'Anything written in this repository is ours and MIT-licensed. Where an idea came from someone else, the file that implements it says so.',
+  'Everything written in this repository is MIT-licensed. Where an idea came from someone else, the file that implements it says so.',
   '',
 ];
 

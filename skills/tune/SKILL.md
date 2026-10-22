@@ -37,6 +37,6 @@ If the user's CLAUDE.md already states the tool rules in its own words, add `--n
 
 Do not copy code from those projects into this repo; install them instead. `UPSTREAMS.md` records each licence.
 
-## Our own parts
+## Built-in parts
 
 - **stash** (MCP server) keeps big outputs in a local index: `stash_run`, `stash_index`, then `stash_search` / `stash_get`.
