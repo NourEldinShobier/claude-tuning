@@ -26,7 +26,7 @@ Setting the API keys is the only step you do yourself.
 | What | Required? | Get it |
 |---|---|---|
 | [Bun](https://bun.sh) | Yes | Installed by `/claude-tuning:tune` if missing |
-| Claude Code 2.1.274+ | For fast-jev-compaction | `claude update` |
+| Claude Code 2.1.274+ | For smart-jev-compact | `claude update` |
 | `TYPESAFE_API_KEY` | Optional | Turns on the Jev features below. [console.typesafe.ai](https://console.typesafe.ai/settings/keys) |
 
 ## What you get
@@ -48,9 +48,8 @@ Setting the API keys is the only step you do yourself.
 | [i-have-adhd](https://github.com/ayghri/i-have-adhd) | Short answers that lead with the next action |
 | Tool rules in `~/.claude/CLAUDE.md` | Tell Claude when to use the tools above |
 | [codebase-memory](https://github.com/DeusData/codebase-memory-mcp) | Code graph; installed with its official installer if missing |
-| [fast-jev-compaction](https://github.com/tamaratran/fast-jev-compaction) (Jev) | Compaction that keeps chosen messages word for word instead of summarising them |
+| [smart-jev-compact](https://github.com/NourEldinShobier/smart-jev-compact) (Jev) | Compaction that keeps chosen messages word for word, and compacts on its own at a finished checkpoint, not mid-task. Confirm once with `/compact-adviser auto` |
 | [quicksilver](https://github.com/UditAkhourii/quicksilver) (Jev) | Jev picks the files, log lines or items that matter, so Claude reads only those |
-| [compact-adviser](https://github.com/kunchenguid/compact-adviser) (Jev) | Compacts on its own at a finished checkpoint, not mid-task. Confirm once with `/compact-adviser auto` |
 | [jev-steer-or-queue](https://github.com/NourEldinShobier/Jev_steer_or_queue) (Jev) | Decides whether a message you send mid-turn steers, queues or stops the task |
 | [toolgate](https://github.com/NourEldinShobier/toolgate) (Jev) | Stops tool calls that follow prompt-injected instructions; everything else runs |
 | Settings | 700k auto-compact window, function hooks on (for compaction), the code-graph and rtk hooks, and auto-update for claude-tuning and stash |
@@ -62,7 +61,7 @@ Your existing settings are kept. Backups: `settings.json.bak`, `CLAUDE.md.bak`.
 Everything still works:
 
 - Skill suggestions and model routing turn off.
-- Compaction falls back to Claude Code's own; compact-adviser, jev-steer-or-queue and quicksilver stay idle.
+- Compaction falls back to Claude Code's own; the adviser, jev-steer-or-queue and quicksilver stay idle.
 
 ## Setup options
 
@@ -92,9 +91,8 @@ We copy no third-party code. Each tool installs from its own repo at a pinned ve
 | [ponytail](https://github.com/DietrichGebert/ponytail) | Makes Claude write the smallest code that works | 54% less code, 22% fewer tokens, 20% cheaper, 27% faster | MIT | Installed by setup |
 | [i-have-adhd](https://github.com/ayghri/i-have-adhd) | Answers lead with the next action: numbered steps, no filler | No published numbers; shorter answers | MIT | Installed by setup |
 | [codebase-memory-mcp](https://github.com/DeusData/codebase-memory-mcp) | Code graph: "where is X defined, who calls X" without reading whole files | 120x fewer tokens (3.4k vs 412k over 5 queries) | MIT | Installed by setup if missing |
-| [fast-jev-compaction](https://github.com/tamaratran/fast-jev-compaction) | Jev picks which messages survive compaction; kept ones stay verbatim | No published token numbers; no summary drift | MIT | Installed by setup; function hooks turned on |
+| [smart-jev-compact](https://github.com/NourEldinShobier/smart-jev-compact) | Jev picks which messages survive compaction (kept ones stay verbatim) and a finished checkpoint to compact at; quiet output, local mode without an API key | No published token numbers; no summary drift; avoids compacting mid-task | MIT | Our fork of fast-jev-compaction + compact-adviser; installed by setup, adviser in auto mode, function hooks turned on |
 | [quicksilver](https://github.com/UditAkhourii/quicksilver) | Jev filters, labels and ranks many files, log lines or items, so Claude reads only the matches | 86% fewer Claude tokens on 12 tasks, up to 20x faster | MIT | Installed by setup; the tool rules say when to use it |
-| [compact-adviser](https://github.com/kunchenguid/compact-adviser) | Jev picks a finished checkpoint and runs /compact there | No published token numbers; avoids compacting mid-task | MIT | Installed by setup in auto mode |
 | [jev-steer-or-queue](https://github.com/NourEldinShobier/Jev_steer_or_queue) | Jev routes mid-turn messages: steer, queue until the turn ends, or stop | No token numbers; 450–650 ms per mid-turn message, ~90 ms per tool hook (Rust port in the fork) | MIT | Fork; installed by setup in shadow mode |
 | [toolgate](https://github.com/NourEldinShobier/toolgate) | Jev checks each tool call before it runs; here only for prompt injection | ~0.4 s per gated call | MIT | Fork; installed by setup with the injection-only policy |
 

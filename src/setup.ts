@@ -110,7 +110,7 @@ async function main() {
   out(`  claude   ${claudeOk ? 'ok' : 'missing — install Claude Code first: https://claude.com/claude-code'}`);
   if (!claudeOk) process.exit(1);
   const [cMaj = 0, cMin = 0, cPatch = 0] = await versionOf(['claude', '--version']);
-  if (cMaj * 1e6 + cMin * 1e3 + cPatch < 2_001_274) out('  note     fast-jev-compaction needs Claude Code 2.1.274 or newer; run `claude update`. Until then the built-in compaction runs.');
+  if (cMaj * 1e6 + cMin * 1e3 + cPatch < 2_001_274) out('  note     smart-jev-compact needs Claude Code 2.1.274 or newer; run `claude update`. Until then the built-in compaction runs.');
 
   // 2. Plugins, each from its own repo at the pinned version.
   const already = await installed();
@@ -151,6 +151,13 @@ async function main() {
     const r = await runInstaller(cmd);
     const ok = await isInstalled(u);
     out(`  ${u.id.padEnd(20)} ${ok ? 'installed' : `install failed: ${r.output.split('\n').filter(Boolean).pop() ?? 'no output'}`}`);
+  }
+  // fast-jev-compaction and compact-adviser were replaced by smart-jev-compact (0.23.0); uninstall them.
+  for (const old of ['fast-jev-compaction', 'compact-adviser']) {
+    if (!APPLY || !(await installed()).has(`${old}@${old}`)) continue;
+    const r = await run(['claude', 'plugin', 'uninstall', `${old}@${old}`]);
+    await run(['claude', 'plugin', 'marketplace', 'remove', old]);
+    out(`  ${old.padEnd(20)} ${r.ok ? 'removed (replaced by smart-jev-compact)' : `remove failed: ${r.output.split('\n').pop()}`}`);
   }
   // jev-browser shipped in 0.11.0 and was dropped; unregister it.
   if (APPLY && (await run(['claude', 'mcp', 'get', 'jev-browser'])).ok) {

@@ -15,7 +15,7 @@ export interface Settings {
 /** Tuning that is not code: the auto-compact window, function hooks and the rtk and code-graph hooks. */
 export function desired(has: { codebaseMemory: boolean; rtk?: string }): Settings {
   const env: Record<string, string> = {
-    // fast-jev-compaction runs as a function hook, an early-access feature behind this flag.
+    // smart-jev-compact runs as a function hook, an early-access feature behind this flag.
     CLAUDE_CODE_ENABLE_FUNCTION_HOOKS: '1',
   };
   const hooks: Settings['hooks'] = {};
