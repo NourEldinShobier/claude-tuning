@@ -8,8 +8,8 @@
   },
   "ponytail": {
     "repo": "https://github.com/DietrichGebert/ponytail",
-    "version": "5.3.2",
-    "commit": "16352ac229eb08a9598dcae48fe9f2b342567d86",
+    "version": "5.3.3",
+    "commit": "7801d061243d7b753bad0e0b3c057cd250b11755",
     "license": "MIT",
     "ours": null
   },
@@ -43,8 +43,8 @@
   },
   "rtk": {
     "repo": "https://github.com/rtk-ai/rtk",
-    "version": "1.0.1",
-    "commit": "4ef8730cf3a0dea11c8d64a9b90bc0616fe52100",
+    "version": "1.1.0",
+    "commit": "753a3b0e939f2e4490fc24e3a1984010f40a103c",
     "license": "Apache-2.0",
     "ours": "Setup installs rtk-oss, the Apache-2.0 edition (hooks and every command filter; the full edition adds a BUSL-1.1 compression engine), with its official installer, and adds its Claude Code hook (rtk hook claude) for Bash and PowerShell."
   },
