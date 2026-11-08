@@ -49,6 +49,16 @@ function readDir(dir: string, prefix: string): Skill[] {
   return out;
 }
 
+/** Skills the user never wants suggested: `{"exclude": ["loop", "legal:"]}` in skill-suggest.json. A trailing : excludes a whole plugin. */
+export function excludeList(config: string): string[] {
+  try {
+    const e = JSON.parse(readFileSync(join(config, "skill-suggest.json"), "utf8")).exclude;
+    return Array.isArray(e) ? e.filter((x): x is string => typeof x === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
 export function loadRoster(cwd: string, config = process.env.CLAUDE_CONFIG_DIR || join(homedir(), '.claude')): Skill[] {
   const skills = [...readDir(join(config, 'skills'), ''), ...readDir(join(cwd, '.claude', 'skills'), '')];
   try {
@@ -61,6 +71,7 @@ export function loadRoster(cwd: string, config = process.env.CLAUDE_CONFIG_DIR |
     }
   } catch {}
   skills.push(...BUILTINS);
+  const exclude = excludeList(config);
   const seen = new Set<string>();
-  return skills.filter((s) => !seen.has(s.id) && seen.add(s.id));
+  return skills.filter((s) => !seen.has(s.id) && seen.add(s.id) && !exclude.some((e) => (e.endsWith(":") ? s.id.startsWith(e) : s.id === e)));
 }

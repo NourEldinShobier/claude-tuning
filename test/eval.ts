@@ -19,7 +19,11 @@ const CASES: [string, string | null][] = [
   ['rename the variable foo to count in utils.ts', null],
   ['what is the difference between let and const in javascript', null],
   ['thanks, that looks good. commit it', null],
-  ['why is my rust borrow checker complaining about this lifetime', null],
+  ['why is my rust borrow checker complaining about this lifetime', 'beautiful-rust:rust-best-practices'],
+  ['what is the status of the merge', null],
+  ['are the projects in typescript?', null],
+  ['what is OmniRoute and why did we skip it', null],
+  ['install this on claude globally https://github.com/example/skills', null],
 ];
 
 const roster = loadRoster('D:/code/projects');

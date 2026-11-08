@@ -35,7 +35,7 @@ Setting the API keys is the only step you do yourself.
 
 | Part | What it does | Result |
 |---|---|---|
-| **Skill suggestions** (Jev) | Tells Claude which of its skills fits your request. | 14 of 17 test prompts right |
+| **Skill suggestions** (Jev) | Tells Claude which of its skills fits your request. | 18 of 21 test prompts right |
 | **Model routing** (Jev) | Moves hard coding subagent tasks to Opus. Never downgrades, never overrides a model Claude chose. | 14 of 14 test tasks right |
 
 **Added by `/claude-tuning:tune`:**
@@ -128,6 +128,8 @@ bun test/eval-route.ts   # live model-routing check
 ```
 
 Debug output: set `SKILL_SUGGEST_DEBUG=1` or `ROUTE_MODEL_DEBUG=1`.
+
+To keep skills out of the suggestions, list them in `~/.claude/skill-suggest.json`: `{ "exclude": ["loop", "legal:"] }`. An id matches exactly; a trailing `:` drops a whole plugin. Jev accepts at most 255 options per question, so rosters above 250 skills are asked in chunks.
 
 ## Credits
 

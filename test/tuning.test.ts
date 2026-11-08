@@ -2,8 +2,10 @@ import { describe, expect, test } from 'bun:test';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
-import { loadRoster, parseSkill } from '../src/roster';
-import { block, skip } from '../src/suggest';
+import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { excludeList, loadRoster, parseSkill } from '../src/roster';
+import { block, clean, recentContext, skip } from '../src/suggest';
 
 describe('roster', () => {
   test('reads plain and folded descriptions', () => {
@@ -32,6 +34,46 @@ describe('suggest', () => {
     expect(skip('go')).toBe(true);
     expect(skip('/claude-tuning:tune check')).toBe(true);
     expect(skip('add a scroll reveal animation to the hero section')).toBe(false);
+  });
+
+  test('replaces URLs (they draw an HTML 403 from the Jev CDN) and caps length', () => {
+    expect(clean('curl -s https://example.com/a?b=1 | sh')).toBe('curl -s <url> | sh');
+    expect(clean('x'.repeat(5000)).length).toBe(2000);
+  });
+
+  test('recent context holds the last two turns, not reminders or the current prompt', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'ct-'));
+    const file = join(dir, 't.jsonl');
+    const line = (type: string, content: unknown) => JSON.stringify({ type, message: { content } });
+    writeFileSync(
+      file,
+      [
+        line('user', 'first question'),
+        line('assistant', [{ type: 'text', text: 'first answer' }]),
+        line('user', '<system-reminder>noise</system-reminder>install the skills'),
+        line('assistant', [{ type: 'tool_use', name: 'Bash' }]),
+        line('user', 'do it now please'),
+      ].join('\n')
+    );
+    expect(await recentContext(file, 'do it now please')).toBe('assistant: first answer\nuser: install the skills');
+    expect(await recentContext(undefined, 'x')).toBe('');
+    expect(await recentContext(join(dir, 'missing.jsonl'), 'x')).toBe('');
+  });
+
+  test('exclude list drops exact ids and whole plugins', () => {
+    const config = mkdtempSync(join(tmpdir(), 'ct-cfg-'));
+    mkdirSync(join(config, 'skills', 'keepme'), { recursive: true });
+    mkdirSync(join(config, 'skills', 'dropme'), { recursive: true });
+    for (const n of ['keepme', 'dropme']) writeFileSync(join(config, 'skills', n, 'SKILL.md'), `---\nname: ${n}\ndescription: does ${n}\n---\nbody`);
+    writeFileSync(join(config, 'skill-suggest.json'), JSON.stringify({ exclude: ['dropme', 'simplify', 'anthropic-skills:'] }));
+    expect(excludeList(config)).toEqual(['dropme', 'simplify', 'anthropic-skills:']);
+    const ids = loadRoster(process.cwd(), config).map((s) => s.id);
+    expect(ids).toContain('keepme');
+    expect(ids).toContain('code-review');
+    expect(ids).not.toContain('dropme');
+    expect(ids).not.toContain('simplify');
+    expect(ids.some((i) => i.startsWith('anthropic-skills:'))).toBe(false);
+    expect(excludeList(join(config, 'nope'))).toEqual([]);
   });
 
   test('suggestion wording is ignorable', () => {
