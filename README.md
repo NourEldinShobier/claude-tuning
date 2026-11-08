@@ -35,7 +35,6 @@ Setting the API keys is the only step you do yourself.
 
 | Part | What it does | Result |
 |---|---|---|
-| **Skill suggestions** (Jev) | Tells Claude which of its skills fits your request. | 18 of 21 test prompts right |
 | **Model routing** (Jev) | Moves hard coding subagent tasks to Opus. Never downgrades, never overrides a model Claude chose. | 14 of 14 test tasks right |
 
 **Added by `/claude-tuning:tune`:**
@@ -50,7 +49,6 @@ Setting the API keys is the only step you do yourself.
 | [codebase-memory](https://github.com/DeusData/codebase-memory-mcp) | Code graph; installed with its official installer if missing |
 | [smart-jev-compact](https://github.com/NourEldinShobier/smart-jev-compact) (Jev) | Compaction that keeps chosen messages word for word, and compacts on its own at a finished checkpoint, not mid-task. Confirm once with `/compact-adviser auto` |
 | [quicksilver](https://github.com/UditAkhourii/quicksilver) (Jev) | Jev picks the files, log lines or items that matter, so Claude reads only those |
-| [jev-steer-or-queue](https://github.com/NourEldinShobier/Jev_steer_or_queue) (Jev) | Decides whether a message you send mid-turn steers, queues or stops the task |
 | [toolgate](https://github.com/NourEldinShobier/toolgate) (Jev) | Stops tool calls that follow prompt-injected instructions; everything else runs |
 | Settings | 700k auto-compact window, function hooks on (for compaction), the code-graph and rtk hooks, and auto-update for claude-tuning and stash |
 
@@ -60,8 +58,8 @@ Your existing settings are kept. Backups: `settings.json.bak`, `CLAUDE.md.bak`.
 
 Everything still works:
 
-- Skill suggestions and model routing turn off.
-- Compaction falls back to Claude Code's own; the adviser, jev-steer-or-queue and quicksilver stay idle.
+- Model routing turns off.
+- Compaction falls back to Claude Code's own; the adviser and quicksilver stay idle.
 
 ## Setup options
 
@@ -93,7 +91,6 @@ We copy no third-party code. Each tool installs from its own repo at a pinned ve
 | [codebase-memory-mcp](https://github.com/DeusData/codebase-memory-mcp) | Code graph: "where is X defined, who calls X" without reading whole files | 120x fewer tokens (3.4k vs 412k over 5 queries) | MIT | Installed by setup if missing |
 | [smart-jev-compact](https://github.com/NourEldinShobier/smart-jev-compact) | Jev picks which messages survive compaction (kept ones stay verbatim) and a finished checkpoint to compact at; quiet output, local mode without an API key | No published token numbers; no summary drift; avoids compacting mid-task | MIT | Our fork of fast-jev-compaction + compact-adviser; installed by setup, adviser in auto mode, function hooks turned on |
 | [quicksilver](https://github.com/UditAkhourii/quicksilver) | Jev filters, labels and ranks many files, log lines or items, so Claude reads only the matches | 86% fewer Claude tokens on 12 tasks, up to 20x faster | MIT | Installed by setup; the tool rules say when to use it |
-| [jev-steer-or-queue](https://github.com/NourEldinShobier/Jev_steer_or_queue) | Jev routes mid-turn messages: steer, queue until the turn ends, or stop | No token numbers; 450–650 ms per mid-turn message, ~90 ms per tool hook (Rust port in the fork) | MIT | Fork; installed by setup in shadow mode |
 | [toolgate](https://github.com/NourEldinShobier/toolgate) | Jev checks each tool call before it runs; here only for prompt injection | ~0.4 s per gated call | MIT | Fork; installed by setup with the injection-only policy |
 
 Gains for stash were measured in this repo. Gains for the other tools come from their own READMEs and benchmarks. They measure different things, so the numbers don't add up to one total. Pinned versions are in [UPSTREAMS.md](UPSTREAMS.md).
@@ -102,7 +99,7 @@ Gains for stash were measured in this repo. Gains for the other tools come from 
 
 | Service | Used by |
 |---|---|
-| [TypeSafe Jev](https://typesafe.ai) | Skill suggestions, model routing, compaction, quicksilver, toolgate |
+| [TypeSafe Jev](https://typesafe.ai) | Model routing, compaction, quicksilver, toolgate |
 
 **Runtime:** [Bun](https://bun.sh) runs this code. Only Bun's built-ins are used: SQLite, fetch and spawn.
 
@@ -123,17 +120,14 @@ To update one:
 bun install
 bun test                 # unit tests, no network
 bun run typecheck
-bun test/eval.ts         # live skill-suggestion check (needs TYPESAFE_API_KEY)
 bun test/eval-route.ts   # live model-routing check
 ```
 
-Debug output: set `SKILL_SUGGEST_DEBUG=1` or `ROUTE_MODEL_DEBUG=1`.
+Debug output: set `ROUTE_MODEL_DEBUG=1`.
 
-To keep skills out of the suggestions, list them in `~/.claude/skill-suggest.json`: `{ "exclude": ["loop", "legal:"] }`. An id matches exactly; a trailing `:` drops a whole plugin. Jev accepts at most 255 options per question, so rosters above 250 skills are asked in chunks.
 
 ## Credits
 
-- Skill suggestions follow [TypeSafe's skill-suggestion cookbook](https://docs.typesafe.ai/cookbooks/skill_suggestion).
 - Every installed tool is credited in [UPSTREAMS.md](UPSTREAMS.md).
 
 ## Licence

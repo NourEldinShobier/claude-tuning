@@ -193,7 +193,7 @@ async function main() {
 
   // 6. Keys, presence only.
   out(`\n${bold('API keys')}`);
-  out(`  TYPESAFE_API_KEY  ${process.env.TYPESAFE_API_KEY ? 'set' : 'not set — optional; turns on the Jev parts: skill suggestions, model routing, compaction, ranking, quicksilver, toolgate'}`);
+  out(`  TYPESAFE_API_KEY  ${process.env.TYPESAFE_API_KEY ? 'set' : 'not set — optional; turns on the Jev parts: model routing, compaction, ranking, quicksilver, toolgate'}`);
 
   out(`\n${UPSTREAMS.length} upstreams pinned; see UPSTREAMS.md. Restart Claude Code when this finishes.`);
   if (!APPLY) out('Nothing was changed. Run: bun run setup --apply');

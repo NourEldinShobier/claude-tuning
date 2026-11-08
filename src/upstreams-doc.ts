@@ -25,7 +25,7 @@ const lines = [
   '',
   'stash is written from scratch for this bundle and lives in its own repository so it can be installed alone. This bundle pins it like any other upstream.',
   '',
-  'jev-steer-or-queue and toolgate are installed from forks. Each fork keeps an `UPSTREAM.lock.json` naming the upstream commit it is synced with and what changed, so it can be updated from upstream later.',
+  'toolgate is installed from a fork. The fork keeps an `UPSTREAM.lock.json` naming the upstream commit it is synced with and what changed, so it can be updated from upstream later.',
   '',
   'Everything written in this repository is MIT-licensed. Where an idea came from someone else, the file that implements it says so.',
   '',

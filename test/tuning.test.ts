@@ -2,85 +2,6 @@ import { describe, expect, test } from 'bun:test';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { excludeList, loadRoster, parseSkill } from '../src/roster';
-import { block, clean, recentContext, skip } from '../src/suggest';
-
-describe('roster', () => {
-  test('reads plain and folded descriptions', () => {
-    expect(parseSkill('---\nname: gsap\ndescription: Use for GSAP.\n---\n# Body').description).toBe('Use for GSAP.');
-    const folded = parseSkill('---\nname: p\ndescription: >\n  Forces the laziest\n  solution.\nlicense: MIT\n---\nbody');
-    expect(folded).toEqual({ name: 'p', description: 'Forces the laziest solution.', body: 'body' });
-    expect(parseSkill('---\ndescription: "Quoted: yes"\n---\n').description).toBe('Quoted: yes');
-  });
-
-  test('always finds the built-in skills, and every entry has a description', () => {
-    const roster = loadRoster(process.cwd());
-    expect(roster.some((s) => s.id === 'code-review')).toBe(true);
-    expect(roster.every((s) => s.description.length > 0)).toBe(true);
-  });
-
-  // Needs this machine's own skills and plugins.
-  test.skipIf(!existsSync(join(homedir(), '.claude', 'skills')))('reads personal and plugin skills', () => {
-    const roster = loadRoster(process.cwd());
-    expect(roster.length).toBeGreaterThan(loadRoster(process.cwd(), '/nonexistent').length);
-    expect(roster.some((s) => s.id === 'claude-tuning:tune')).toBe(true);
-  });
-});
-
-describe('suggest', () => {
-  test('skips slash commands, skill invocations and short replies', () => {
-    expect(skip('go')).toBe(true);
-    expect(skip('/claude-tuning:tune check')).toBe(true);
-    expect(skip('add a scroll reveal animation to the hero section')).toBe(false);
-  });
-
-  test('replaces URLs (they draw an HTML 403 from the Jev CDN) and caps length', () => {
-    expect(clean('curl -s https://example.com/a?b=1 | sh')).toBe('curl -s <url> | sh');
-    expect(clean('x'.repeat(5000)).length).toBe(2000);
-  });
-
-  test('recent context holds the last two turns, not reminders or the current prompt', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'ct-'));
-    const file = join(dir, 't.jsonl');
-    const line = (type: string, content: unknown) => JSON.stringify({ type, message: { content } });
-    writeFileSync(
-      file,
-      [
-        line('user', 'first question'),
-        line('assistant', [{ type: 'text', text: 'first answer' }]),
-        line('user', '<system-reminder>noise</system-reminder>install the skills'),
-        line('assistant', [{ type: 'tool_use', name: 'Bash' }]),
-        line('user', 'do it now please'),
-      ].join('\n')
-    );
-    expect(await recentContext(file, 'do it now please')).toBe('assistant: first answer\nuser: install the skills');
-    expect(await recentContext(undefined, 'x')).toBe('');
-    expect(await recentContext(join(dir, 'missing.jsonl'), 'x')).toBe('');
-  });
-
-  test('exclude list drops exact ids and whole plugins', () => {
-    const config = mkdtempSync(join(tmpdir(), 'ct-cfg-'));
-    mkdirSync(join(config, 'skills', 'keepme'), { recursive: true });
-    mkdirSync(join(config, 'skills', 'dropme'), { recursive: true });
-    for (const n of ['keepme', 'dropme']) writeFileSync(join(config, 'skills', n, 'SKILL.md'), `---\nname: ${n}\ndescription: does ${n}\n---\nbody`);
-    writeFileSync(join(config, 'skill-suggest.json'), JSON.stringify({ exclude: ['dropme', 'simplify', 'anthropic-skills:'] }));
-    expect(excludeList(config)).toEqual(['dropme', 'simplify', 'anthropic-skills:']);
-    const ids = loadRoster(process.cwd(), config).map((s) => s.id);
-    expect(ids).toContain('keepme');
-    expect(ids).toContain('code-review');
-    expect(ids).not.toContain('dropme');
-    expect(ids).not.toContain('simplify');
-    expect(ids.some((i) => i.startsWith('anthropic-skills:'))).toBe(false);
-    expect(excludeList(join(config, 'nope'))).toEqual([]);
-  });
-
-  test('suggestion wording is ignorable', () => {
-    expect(block('gsap')).toContain('Relevant to the current request: gsap. Ignore this if it does not fit');
-  });
-});
-
 import { eligible, isComplex } from '../src/route-model';
 
 describe('model routing', () => {
@@ -180,7 +101,7 @@ describe('upstreams', () => {
   test('every script hooks.json wires exists', async () => {
     const { existsSync, readFileSync } = await import('node:fs');
     const paths = [...readFileSync('hooks/hooks.json', 'utf8').matchAll(/\$\{CLAUDE_PLUGIN_ROOT\}\/([\w./-]+)/g)].map((m) => m[1]!);
-    expect(paths).toEqual(['src/suggest.ts', 'src/route-model.ts']);
+    expect(paths).toEqual(['src/route-model.ts']);
     for (const p of paths) expect(existsSync(p)).toBe(true);
   });
 

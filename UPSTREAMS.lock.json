@@ -34,13 +34,6 @@
     "license": "MIT",
     "ours": "The tool rules tell Claude when to reach for it."
   },
-  "jev-steer-or-queue": {
-    "repo": "https://github.com/NourEldinShobier/Jev_steer_or_queue",
-    "version": "0.3.0",
-    "commit": "3a364c13f83dc5a22f426000181ce918a1e3bde9",
-    "license": "MIT",
-    "ours": "Fork of Larkspur-Wang/Jev_steer_or_queue (see its UPSTREAM.lock.json): a Rust router (~90 ms per hook, works on Windows; upstream crashed there) with the Python one as fallback. Installed in shadow mode (logs decisions only); set its mode to active in /plugin to queue and stop for real."
-  },
   "rtk": {
     "repo": "https://github.com/rtk-ai/rtk",
     "version": "1.1.0",
