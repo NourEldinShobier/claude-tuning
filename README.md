@@ -27,7 +27,7 @@ Setting the API keys is the only step you do yourself.
 |---|---|---|
 | [Bun](https://bun.sh) | Yes | Installed by `/claude-tuning:tune` if missing |
 | Claude Code 2.1.274+ | For smart-jev-compact | `claude update` |
-| `TYPESAFE_API_KEY` | Optional | Turns on the Jev features below. [console.typesafe.ai](https://console.typesafe.ai/settings/keys) |
+| `TYPESAFE_API_KEY` | Optional | Turns on the Jev features below. [console.typesafe.ai](https://console.typesafe.ai/settings/keys). Or use [a command](#key-from-a-command-optional) that prints it |
 
 ## What you get
 
@@ -60,6 +60,17 @@ Everything still works:
 
 - Model routing turns off.
 - Compaction falls back to Claude Code's own; the adviser and quicksilver stay idle.
+
+## Key from a command (optional)
+
+To keep the key in a password manager instead of an environment variable, set `TYPESAFE_API_KEY_COMMAND` to a command that prints the key on stdout:
+
+```
+TYPESAFE_API_KEY_COMMAND=swm read TYPESAFE_API_KEY
+TYPESAFE_API_KEY_COMMAND=op read op://vault/item/field
+```
+
+The command is used only when `TYPESAFE_API_KEY` is unset or empty. It is split on whitespace (single and double quotes group words), run without a shell, and given 3 seconds. The first line of its output, trimmed, is the key (at most 4096 characters). If the command fails, times out or prints nothing, Jev features stay off, as without a key. The key is never logged. smart-jev-compact, toolgate and quicksilver accept the same setting.
 
 ## Setup options
 

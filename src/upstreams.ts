@@ -81,7 +81,7 @@ export const UPSTREAMS: Upstream[] = [
     plugin: 'smart-jev-compact',
     version: '0.4.0',
     commit: 'b1bc4adb8c2ccc71fb521dc4fc065b5de6c9e2e5',
-    why: 'One plugin for compaction: Jev picks which messages survive (kept ones stay word for word, dropped results can be saved to files), and the built-in adviser compacts at a finished checkpoint instead of mid-task. Quiet by default, with a no-API-key local mode. Needs Claude Code 2.1.274+, Node 22+ and TYPESAFE_API_KEY.',
+    why: 'One plugin for compaction: Jev picks which messages survive (kept ones stay word for word, dropped results can be saved to files), and the built-in adviser compacts at a finished checkpoint instead of mid-task. Quiet by default, with a no-API-key local mode. Needs Claude Code 2.1.274+, Node 22+ and TYPESAFE_API_KEY (or TYPESAFE_API_KEY_COMMAND).',
     ours: 'Our fork of tamaratran/fast-jev-compaction with kunchenguid/compact-adviser merged in; both upstreams are tracked in its UPSTREAM.lock.json. Setup installs it with the adviser in auto mode; run /compact-adviser auto once to confirm. Turns on the function hooks it needs.',
     config: { adviserMode: 'auto' },
   },
@@ -94,7 +94,7 @@ export const UPSTREAMS: Upstream[] = [
     plugin: 'quicksilver',
     version: '0.1.0',
     commit: '5d6fe5cd4f9d9a9d086a81c797e59b77c0724043',
-    why: 'Skill that hands bulk judgment calls (which files matter, which log lines are failures, labels for many items, ranking) to Jev, so Claude reads only the shortlist. 86% fewer Claude tokens on its 12-task benchmark. Needs Node 18+ and TYPESAFE_API_KEY.',
+    why: 'Skill that hands bulk judgment calls (which files matter, which log lines are failures, labels for many items, ranking) to Jev, so Claude reads only the shortlist. 86% fewer Claude tokens on its 12-task benchmark. Needs Node 18+ and TYPESAFE_API_KEY (or TYPESAFE_API_KEY_COMMAND).',
     ours: 'The tool rules tell Claude when to reach for it.',
   },
   {
@@ -136,7 +136,7 @@ export const UPSTREAMS: Upstream[] = [
     kind: 'cli',
     version: '0.17.1',
     commit: TOOLGATE,
-    why: "Jev checks each tool call before it runs. Configured here to stop only prompt injection: calls that follow instructions from a web page, file or tool output instead of the user's task. Needs TYPESAFE_API_KEY.",
+    why: "Jev checks each tool call before it runs. Configured here to stop only prompt injection: calls that follow instructions from a web page, file or tool output instead of the user's task. Needs TYPESAFE_API_KEY (or TYPESAFE_API_KEY_COMMAND).",
     ours: 'Fork of RiskAverseTech/toolgate (see its UPSTREAM.lock.json): built-in risk questions can be turned off, dist/ is committed so it installs from GitHub, and the doctor works on Windows. Setup installs the injection-only policy (when ~/.toolgate/toolgate.yaml is missing) and its Claude Code hooks.',
     install: {
       darwin: `${toolgateNpm} && mkdir -p ~/.toolgate && { [ -f ~/.toolgate/toolgate.yaml ] || cp "$(npm root -g)/@riskaverse/toolgate/examples/injection-only.yaml" ~/.toolgate/toolgate.yaml; } && toolgate install`,

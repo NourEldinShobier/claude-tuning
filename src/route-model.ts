@@ -60,7 +60,7 @@ if (import.meta.main) {
   try {
     const event = JSON.parse((await Bun.stdin.text()) || '{}') as { tool_input?: AgentInput };
     const input = event.tool_input ?? {};
-    if (jevKey() && eligible(input)) {
+    if (eligible(input) && (await jevKey())) {
       const s = await judge(input, AbortSignal.timeout(TIMEOUT_MS));
       if (process.env.ROUTE_MODEL_DEBUG) process.stderr.write(`route-model: complex ${s.complex.toFixed(2)} mechanical ${s.mechanical.toFixed(2)}\n`);
       if (isComplex(s.complex, s.mechanical)) {
