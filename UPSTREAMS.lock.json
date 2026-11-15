@@ -22,8 +22,8 @@
   },
   "smart-jev-compact": {
     "repo": "https://github.com/NourEldinShobier/smart-jev-compact",
-    "version": "0.4.0",
-    "commit": "b1bc4adb8c2ccc71fb521dc4fc065b5de6c9e2e5",
+    "version": "0.5.0",
+    "commit": "00eb197477abe12d117968b5058feb296e836daf",
     "license": "MIT",
     "ours": "Our fork of tamaratran/fast-jev-compaction with kunchenguid/compact-adviser merged in; both upstreams are tracked in its UPSTREAM.lock.json. Setup installs it with the adviser in auto mode; run /compact-adviser auto once to confirm. Turns on the function hooks it needs."
   },
@@ -50,8 +50,8 @@
   },
   "toolgate": {
     "repo": "https://github.com/NourEldinShobier/toolgate",
-    "version": "0.17.1",
-    "commit": "d3fcd121fc1c1ed0de5d7d357d749027c1a1b6f6",
+    "version": "0.18.0",
+    "commit": "eb57dc7e228323411cd29eb2ad46932fcd8b565b",
     "license": "MIT",
     "ours": "Fork of RiskAverseTech/toolgate (see its UPSTREAM.lock.json): built-in risk questions can be turned off, dist/ is committed so it installs from GitHub, and the doctor works on Windows. Setup installs the injection-only policy (when ~/.toolgate/toolgate.yaml is missing) and its Claude Code hooks."
   }

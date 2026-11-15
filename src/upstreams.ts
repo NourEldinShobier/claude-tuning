@@ -33,7 +33,7 @@ export interface Upstream {
   path?: string;
 }
 
-const TOOLGATE = 'd3fcd121fc1c1ed0de5d7d357d749027c1a1b6f6';
+const TOOLGATE = 'eb57dc7e228323411cd29eb2ad46932fcd8b565b';
 /** The GitHub tarball, not a git dependency: npm's git install can leave a dangling symlink in node_modules. The fork ships dist/, so no build scripts run. */
 const toolgateNpm = `npm install -g https://codeload.github.com/NourEldinShobier/toolgate/tar.gz/${TOOLGATE}`;
 
@@ -79,8 +79,8 @@ export const UPSTREAMS: Upstream[] = [
     kind: 'plugin',
     marketplace: 'smart-jev-compact',
     plugin: 'smart-jev-compact',
-    version: '0.4.0',
-    commit: 'b1bc4adb8c2ccc71fb521dc4fc065b5de6c9e2e5',
+    version: '0.5.0',
+    commit: '00eb197477abe12d117968b5058feb296e836daf',
     why: 'One plugin for compaction: Jev picks which messages survive (kept ones stay word for word, dropped results can be saved to files), and the built-in adviser compacts at a finished checkpoint instead of mid-task. Quiet by default, with a no-API-key local mode. Needs Claude Code 2.1.274+, Node 22+ and TYPESAFE_API_KEY (or TYPESAFE_API_KEY_COMMAND).',
     ours: 'Our fork of tamaratran/fast-jev-compaction with kunchenguid/compact-adviser merged in; both upstreams are tracked in its UPSTREAM.lock.json. Setup installs it with the adviser in auto mode; run /compact-adviser auto once to confirm. Turns on the function hooks it needs.',
     config: { adviserMode: 'auto' },
@@ -134,7 +134,7 @@ export const UPSTREAMS: Upstream[] = [
     repo: 'NourEldinShobier/toolgate',
     license: 'MIT',
     kind: 'cli',
-    version: '0.17.1',
+    version: '0.18.0',
     commit: TOOLGATE,
     why: "Jev checks each tool call before it runs. Configured here to stop only prompt injection: calls that follow instructions from a web page, file or tool output instead of the user's task. Needs TYPESAFE_API_KEY (or TYPESAFE_API_KEY_COMMAND).",
     ours: 'Fork of RiskAverseTech/toolgate (see its UPSTREAM.lock.json): built-in risk questions can be turned off, dist/ is committed so it installs from GitHub, and the doctor works on Windows. Setup installs the injection-only policy (when ~/.toolgate/toolgate.yaml is missing) and its Claude Code hooks.',
