@@ -22,8 +22,8 @@
   },
   "smart-jev-compact": {
     "repo": "https://github.com/NourEldinShobier/smart-jev-compact",
-    "version": "0.5.0",
-    "commit": "00eb197477abe12d117968b5058feb296e836daf",
+    "version": "0.5.1",
+    "commit": "ad64bf56e082f4aea1f5aacf353269ffb55e0d7d",
     "license": "MIT",
     "ours": "Our fork of tamaratran/fast-jev-compaction with kunchenguid/compact-adviser merged in; both upstreams are tracked in its UPSTREAM.lock.json. Setup installs it with the adviser in auto mode; run /compact-adviser auto once to confirm. Turns on the function hooks it needs."
   },
